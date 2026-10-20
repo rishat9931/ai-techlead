@@ -1,0 +1,602 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Standup report",
+  "type": "object",
+  "required": [
+    "meta",
+    "status",
+    "sprint",
+    "people",
+    "signals",
+    "prs",
+    "releases",
+    "tests",
+    "coverage",
+    "recommendations"
+  ],
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": [],
+      "properties": {
+        "generated_at": {
+          "type": "string"
+        },
+        "generated_by": {
+          "type": "string"
+        },
+        "team": {
+          "type": "string"
+        },
+        "sources": {
+          "type": "object",
+          "description": "имя источника -> ok|unavailable|..."
+        },
+        "setup_hints": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [],
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              },
+              "doc_url": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "tests_report": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "имя файла tests-*.json или null"
+        },
+        "thresholds": {
+          "type": "object",
+          "required": [],
+          "properties": {
+            "pr_stale_days": {
+              "type": "number"
+            },
+            "pr_critical_days": {
+              "type": "number"
+            },
+            "task_stale_days": {
+              "type": "number"
+            }
+          }
+        },
+        "questions": {
+          "type": "array",
+          "items": {}
+        }
+      }
+    },
+    "status": {
+      "type": "object",
+      "required": [
+        "level",
+        "summary"
+      ],
+      "properties": {
+        "level": {
+          "type": "string",
+          "enum": [
+            "red",
+            "yellow",
+            "green"
+          ]
+        },
+        "summary": {
+          "type": "string"
+        }
+      }
+    },
+    "sprint": {
+      "type": "object",
+      "required": [],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "state": {
+          "type": "string"
+        },
+        "start": {
+          "type": "string"
+        },
+        "end": {
+          "type": "string"
+        },
+        "day": {
+          "type": "number"
+        },
+        "days_total": {
+          "type": "number"
+        },
+        "done_pct": {
+          "type": "number"
+        },
+        "sp_done": {
+          "type": "number"
+        },
+        "sp_total": {
+          "type": "number"
+        },
+        "scope_added": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [],
+            "properties": {
+              "key": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "risk": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "people": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "active"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "absent": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "to": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            }
+          },
+          "active": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [],
+              "properties": {
+                "key": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string"
+                },
+                "days_no_move": {
+                  "type": "number"
+                },
+                "url": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "prs": {
+            "type": "array",
+            "items": {}
+          },
+          "blockers": {
+            "type": "array",
+            "items": {}
+          },
+          "flags": {
+            "type": "array",
+            "items": {}
+          }
+        }
+      }
+    },
+    "signals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "level",
+          "text",
+          "owner",
+          "reminder"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "red",
+              "yellow"
+            ]
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "sprint",
+              "people",
+              "pr",
+              "release",
+              "tests",
+              "coverage"
+            ]
+          },
+          "text": {
+            "type": "string"
+          },
+          "owner": {
+            "type": "string"
+          },
+          "age_days": {
+            "type": "number"
+          },
+          "url": {
+            "type": "string"
+          },
+          "reminder": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "prs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [],
+        "properties": {
+          "repo": {
+            "type": "string"
+          },
+          "id": {
+            "type": [
+              "integer",
+              "string"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "author": {
+            "type": "string"
+          },
+          "reviewers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "age_days": {
+            "type": "number"
+          },
+          "idle_days": {
+            "type": "number"
+          },
+          "whose_turn": {
+            "type": "string",
+            "enum": [
+              "reviewers",
+              "author"
+            ]
+          },
+          "last_human_activity": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "build": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "jira_key": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "url": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "releases": {
+      "type": "object",
+      "required": [],
+      "properties": {
+        "upcoming": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [],
+            "properties": {
+              "key": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "planned_date": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              },
+              "days_no_move": {
+                "type": "number"
+              },
+              "linked": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "issues": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "url": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "past": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [],
+            "properties": {
+              "key": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "planned_date": {
+                "type": "string"
+              },
+              "closed_date": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "status": {
+                "type": "string"
+              },
+              "linked": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "issues": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "url": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "ready_without_release": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [],
+            "properties": {
+              "key": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "assignee": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "url": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "tests": {
+      "type": "object",
+      "required": [],
+      "properties": {
+        "jobs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [],
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "state": {
+                "type": "string",
+                "enum": [
+                  "ok",
+                  "failed_before_tests",
+                  "hung",
+                  "idle"
+                ]
+              },
+              "last_run": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "url": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "launches": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [],
+            "properties": {
+              "project": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "passed": {
+                "type": "number"
+              },
+              "failed": {
+                "type": "number"
+              },
+              "broken": {
+                "type": "number"
+              },
+              "skipped": {
+                "type": "number"
+              },
+              "url": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "failures": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [],
+            "properties": {
+              "test": {
+                "type": "string"
+              },
+              "project": {
+                "type": "string"
+              },
+              "is_new": {
+                "type": "boolean"
+              },
+              "flaky_rate": {
+                "type": "number"
+              },
+              "short_cause": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "url": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "required": [],
+      "properties": {
+        "projects": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [],
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "automated": {
+                "type": "number"
+              },
+              "total": {
+                "type": "number"
+              },
+              "pct": {
+                "type": "number"
+              },
+              "target": {
+                "type": "number"
+              },
+              "delta_prev": {
+                "type": "number"
+              }
+            }
+          }
+        }
+      }
+    },
+    "recommendations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [],
+        "properties": {
+          "who": {
+            "type": "string"
+          },
+          "what": {
+            "type": "string"
+          },
+          "when": {
+            "type": "string"
+          },
+          "why": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

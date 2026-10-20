@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Raw collector file",
+  "description": "Сырой файл сборщика. Должен быть либо data (успех), либо error (сбой источника); оба поля необязательны на уровне схемы.",
+  "type": "object",
+  "required": ["source", "collected_at"],
+  "properties": {
+    "source": { "type": "string", "enum": ["jira", "bitbucket", "jenkins", "testops"] },
+    "collected_at": { "type": "string" },
+    "data": { "type": "object", "description": "Собранные данные источника (если сбора удался)" },
+    "error": { "type": "string", "description": "Причина сбоя (если источник недоступен)" }
+  }
+}

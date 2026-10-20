@@ -1,0 +1,94 @@
+{
+  "meta": {
+    "generated_at": "2026-10-20T08:55:00+03:00",
+    "generated_by": "Дмитрий Соколов (aqa)",
+    "launches": [
+      "pay-smoke #418",
+      "pay-regress #97"
+    ]
+  },
+  "clusters": [
+    {
+      "signature": "java.net.ConnectException: Connection refused (ift-2.pay.local:8443)",
+      "category": "окружение",
+      "cause": "Стенд ift-2 не отвечает с 19.10 ~18:00. Все тесты, которые ходят в платёжный шлюз, падают на подключении.",
+      "count": 9,
+      "jira_bug": null,
+      "suggested_bug": null,
+      "jenkins_log_excerpt": "[pay-smoke #418] 08:12:41 ERROR ConnectException: Connection refused\n  at PaymentGatewayClient.send(PaymentGatewayClient.java:88)",
+      "tests": [
+        {
+          "name": "PaymentCallbackTest.duplicateCallbackIgnored",
+          "url": "#"
+        },
+        {
+          "name": "PaymentCallbackTest.signatureValid",
+          "url": "#"
+        },
+        {
+          "name": "PayoutTest.createPayout",
+          "url": "#"
+        }
+      ]
+    },
+    {
+      "signature": "AssertionError: expected status REFUND_PENDING but was PROCESSING",
+      "category": "баг продукта",
+      "cause": "После мержа PAY-1271 в ветку релиза API возвратов не отдаёт новый статус — маппинг в RefundStatusMapper не обновлён.",
+      "count": 3,
+      "jira_bug": null,
+      "suggested_bug": {
+        "title": "API возвратов СБП не возвращает статус REFUND_PENDING",
+        "description": "Шаги: создать возврат по СБП → GET /refunds/{id}. Ожидается REFUND_PENDING, фактически PROCESSING. Тесты: SbpRefundTest.*"
+      },
+      "jenkins_log_excerpt": null,
+      "tests": [
+        {
+          "name": "SbpRefundTest.refundPendingStatus",
+          "url": "#"
+        },
+        {
+          "name": "SbpRefundTest.refundListFilter",
+          "url": "#"
+        },
+        {
+          "name": "SbpRefundTest.refundWebhook",
+          "url": "#"
+        }
+      ]
+    },
+    {
+      "signature": "TimeoutException: receipt not received in 5000 ms",
+      "category": "flaky",
+      "cause": "Падает в 4 из 10 последних прогонов. Чек приходит за 5–7 с, таймаут теста 5 с.",
+      "count": 1,
+      "jira_bug": {
+        "key": "PAY-1199",
+        "url": "#"
+      },
+      "suggested_bug": null,
+      "jenkins_log_excerpt": null,
+      "tests": [
+        {
+          "name": "PayoutSelfEmployedTest.receiptSent",
+          "url": "#"
+        }
+      ]
+    },
+    {
+      "signature": "AssertionError: expected 10.51 but was 10.50",
+      "category": "ошибка теста",
+      "cause": "После хотфикса PAY-1290 округление комиссии стало банковским (HALF_EVEN), тест ожидает HALF_UP.",
+      "count": 1,
+      "jira_bug": null,
+      "suggested_bug": null,
+      "jenkins_log_excerpt": null,
+      "tests": [
+        {
+          "name": "CommissionTest.roundingHalfUp",
+          "url": "#"
+        }
+      ]
+    }
+  ]
+}

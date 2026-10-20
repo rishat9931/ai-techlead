@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Tests report",
+  "type": "object",
+  "required": ["meta", "clusters"],
+  "properties": {
+    "meta": {
+      "type": "object",
+      "properties": {
+        "generated_at": { "type": "string" },
+        "generated_by": { "type": "string" },
+        "launches": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "clusters": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["signature", "category", "cause", "tests", "count"],
+        "properties": {
+          "signature": { "type": "string" },
+          "category": { "type": "string" },
+          "cause": { "type": "string" },
+          "tests": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["name"],
+              "properties": { "name": { "type": "string" }, "url": { "type": "string" } }
+            }
+          },
+          "count": { "type": "integer" },
+          "jira_bug": { "type": ["object", "string", "null"] },
+          "suggested_bug": {
+            "type": ["object", "null"],
+            "properties": { "title": { "type": "string" }, "description": { "type": "string" } }
+          },
+          "jenkins_log_excerpt": { "type": ["string", "null"] }
+        }
+      }
+    }
+  }
+}
