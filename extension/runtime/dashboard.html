@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Стендап команды</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #EEF1F5; --surface: #FFFFFF; --ink: #1B2430; --muted: #5B6675; --line: #D5DBE3;
+  --red: #C2362F; --red-bg: #FBEAE8; --amber: #A86A12; --amber-bg: #FBF1DE;
+  --green: #2E7A4F; --green-bg: #E5F2EA; --grey-bg: #E6E9EE; --link: #1F5FBF;
+  --sans: "IBM Plex Sans", -apple-system, "Segoe UI", Roboto, sans-serif;
+  --cond: "IBM Plex Sans Condensed", "IBM Plex Sans", "Arial Narrow", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #12171E; --surface: #1A212B; --ink: #E4E8EE; --muted: #97A1AF; --line: #2C3542;
+    --red: #EF6A61; --red-bg: #3A1E1D; --amber: #E0A54A; --amber-bg: #372A15;
+    --green: #5DBB86; --green-bg: #17301F; --grey-bg: #252D38; --link: #7FAEF5;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #12171E; --surface: #1A212B; --ink: #E4E8EE; --muted: #97A1AF; --line: #2C3542;
+  --red: #EF6A61; --red-bg: #3A1E1D; --amber: #E0A54A; --amber-bg: #372A15;
+  --green: #5DBB86; --green-bg: #17301F; --grey-bg: #252D38; --link: #7FAEF5;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 var(--sans); font-variant-numeric: tabular-nums; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; border-radius: 2px; }
+.wrap { max-width: 1320px; margin: 0 auto; padding: 0 24px 64px; }
+h2 { font: 600 17px/1.3 var(--sans); margin: 0 0 12px; }
+.muted { color: var(--muted); }
+.small { font-size: 13px; }
+
+/* Шапка: вердикт */
+.verdict { border-left: 10px solid var(--status); background: var(--surface); padding: 22px 28px 20px; margin: 0 -24px 0; }
+.verdict-row { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
+.verdict h1 { font: 600 clamp(22px, 2.6vw, 32px)/1.2 var(--sans); margin: 0; max-width: 30ch; letter-spacing: -0.01em; }
+.verdict .level { font: 600 15px/1 var(--cond); color: var(--status); margin-bottom: 10px; display: block; }
+.meta { text-align: right; color: var(--muted); font-size: 13px; }
+.meta button { margin-top: 6px; }
+.sprint { display: flex; flex-wrap: wrap; gap: 8px 28px; margin-top: 18px; align-items: center; }
+.sprint b { font-weight: 600; }
+.bar { position: relative; width: 220px; height: 8px; background: var(--grey-bg); border-radius: 4px; overflow: hidden; }
+.bar i { position: absolute; inset: 0 auto 0 0; background: var(--ink); border-radius: 4px; }
+.bar s { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--amber); text-decoration: none; }
+.sources { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; }
+.dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; vertical-align: 1px; }
+.dot.ok { background: var(--green); } .dot.bad { background: var(--red); }
+
+.banner { background: var(--amber-bg); color: var(--ink); border-left: 4px solid var(--amber); padding: 10px 16px; margin: 16px 0 0; font-size: 14px; }
+
+/* Вкладки и фильтр */
+.toolbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin: 22px 0 18px; border-bottom: 1px solid var(--line); }
+.tabs { display: flex; gap: 4px; }
+.tabs button { font: 500 15px var(--sans); color: var(--muted); background: none; border: 0; border-bottom: 3px solid transparent; padding: 10px 14px; cursor: pointer; }
+.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); }
+select, .btn { font: 14px var(--sans); color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; }
+.btn { cursor: pointer; }
+.btn:hover { border-color: var(--muted); }
+.btn.copied { border-color: var(--green); color: var(--green); }
+
+/* Раскладка стендапа */
+.grid { display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 32px; align-items: start; }
+.panel { background: var(--surface); border-radius: 8px; padding: 18px 20px; }
+section + section { margin-top: 28px; }
+
+/* Доска людей */
+.people { display: grid; gap: 1px; background: var(--line); border-radius: 8px; overflow: hidden; }
+.person { background: var(--surface); display: grid; grid-template-columns: 210px minmax(0, 1fr) 180px; gap: 16px; padding: 14px 18px; border-left: 5px solid var(--pl, transparent); }
+.person[data-level="red"] { --pl: var(--red); }
+.person[data-level="yellow"] { --pl: var(--amber); }
+.person[data-level="absent"] { --pl: var(--line); color: var(--muted); }
+.person .who b { display: block; font-weight: 600; }
+.task { display: flex; gap: 10px; align-items: baseline; padding: 2px 0; }
+.task .key { font: 500 13px var(--cond); white-space: nowrap; }
+.task .t { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.task .st { font-size: 12px; color: var(--muted); white-space: nowrap; }
+.age { font-size: 12px; white-space: nowrap; padding: 0 6px; border-radius: 4px; }
+.age.warn { background: var(--amber-bg); color: var(--amber); }
+.age.bad { background: var(--red-bg); color: var(--red); }
+.flags { font-size: 13px; }
+.flags div { color: var(--fc, var(--muted)); }
+.person[data-level="red"] .flags div { --fc: var(--red); }
+.person[data-level="yellow"] .flags div { --fc: var(--amber); }
+.empty-work { color: var(--red); font-weight: 500; }
+
+/* Сигналы */
+.signal { padding: 12px 0; border-top: 1px solid var(--line); display: grid; grid-template-columns: 6px 1fr; gap: 12px; }
+.signal:first-of-type { border-top: 0; padding-top: 0; }
+.signal .mark { border-radius: 3px; background: var(--sc); }
+.signal[data-level="red"] { --sc: var(--red); }
+.signal[data-level="yellow"] { --sc: var(--amber); }
+.signal p { margin: 0 0 6px; }
+.signal .row { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
+
+/* Таблицы */
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th { text-align: left; font-weight: 500; color: var(--muted); font-size: 13px; padding: 0 10px 8px 0; border-bottom: 1px solid var(--line); }
+td { padding: 9px 10px 9px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+tr:last-child td { border-bottom: 0; }
+.num { text-align: right; }
+.pill { font-size: 12px; padding: 1px 7px; border-radius: 10px; white-space: nowrap; }
+.pill.red { background: var(--red-bg); color: var(--red); }
+.pill.amber { background: var(--amber-bg); color: var(--amber); }
+.pill.green { background: var(--green-bg); color: var(--green); }
+.pill.grey { background: var(--grey-bg); color: var(--muted); }
+
+.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px; }
+.release { padding: 10px 0; border-top: 1px solid var(--line); }
+.release:first-of-type { border-top: 0; }
+.release .head { display: flex; justify-content: space-between; gap: 8px; }
+.issues { color: var(--amber); font-size: 13px; }
+.release .head .pill { align-self: flex-start; }
+
+.cov { display: grid; grid-template-columns: 110px 1fr 70px; gap: 12px; align-items: center; padding: 6px 0; }
+.cov .bar { width: 100%; }
+.cov .bar i { background: var(--cv); }
+
+.recs { list-style: none; margin: 0; padding: 0; }
+.recs li { display: grid; grid-template-columns: 180px 1fr 140px; gap: 16px; padding: 10px 0; border-top: 1px solid var(--line); }
+.recs li:first-child { border-top: 0; }
+.recs .why { grid-column: 2 / 4; color: var(--muted); font-size: 13px; margin-top: -6px; }
+
+/* Вкладка тестов */
+.cluster { border-top: 1px solid var(--line); padding: 14px 0; }
+.cluster:first-of-type { border-top: 0; }
+.cluster summary { cursor: pointer; display: grid; grid-template-columns: 1fr auto; gap: 12px; list-style: none; }
+.cluster summary::-webkit-details-marker { display: none; }
+.sig { font: 13px/1.4 ui-monospace, "SF Mono", Menlo, monospace; word-break: break-word; }
+.cluster .body { margin-top: 10px; padding-left: 14px; border-left: 2px solid var(--line); }
+pre { background: var(--grey-bg); padding: 10px 12px; border-radius: 6px; overflow-x: auto; font-size: 12px; margin: 8px 0; }
+.bugdraft { background: var(--bg); padding: 10px 12px; border-radius: 6px; margin-top: 8px; font-size: 14px; }
+
+[hidden] { display: none !important; }
+
+@media (max-width: 1100px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 760px) {
+  .wrap { padding: 0 16px 48px; }
+  .verdict { margin: 0 -16px; padding: 18px 16px; }
+  .meta { text-align: left; }
+  .person { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+  .two { grid-template-columns: minmax(0, 1fr); }
+  .verdict h1 { font-size: 22px; }
+  .toolbar { border-bottom: 0; }
+  .tabs { width: 100%; border-bottom: 1px solid var(--line); }
+  .recs li { grid-template-columns: 1fr; gap: 2px; }
+  .recs .why { grid-column: 1; margin-top: 0; }
+  .table-scroll { overflow-x: auto; }
+  .bar { width: 140px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .verdict { animation: in .35s ease-out; }
+  @keyframes in { from { opacity: 0; transform: translateY(-6px); } }
+}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+
+<script src="reports/latest.js"></script>
+<script>
+(function () {
+  const R = window.REPORT, T = window.TESTS_REPORT || null;
+  const app = document.getElementById('app');
+  if (!R) {
+    app.innerHTML = '<div class="panel" style="margin-top:40px"><h2>Отчёта ещё нет — запустите /standup</h2><p>Запустите <b>/standup</b> в GigaCode из папки команды — страница обновится после генерации <code>reports/latest.js</code>.</p></div>';
+    return;
+  }
+
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const fmtDate = d => d ? new Date(d).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' }) : '—';
+  const plural = (n, a, b, c) => { const m = n % 10, h = n % 100; return m === 1 && h !== 11 ? a : m >= 2 && m <= 4 && (h < 10 || h >= 20) ? b : c; };
+  const days = n => `${n} ${plural(n, 'день', 'дня', 'дней')}`;
+  const LEVEL = { red: ['Красный', 'var(--red)'], yellow: ['Жёлтый', 'var(--amber)'], green: ['Зелёный', 'var(--green)'] };
+  const ROLE = { dev: 'разработка', qa: 'тестирование', aqa: 'автотесты', analyst: 'аналитика' };
+  const SRC = { jira: 'Jira', bitbucket: 'Bitbucket', jenkins: 'Jenkins', testops: 'TestOps' };
+  const JOB_STATE = {
+    ok: ['работает', 'green'],
+    failed_before_tests: ['упала до тестов', 'red'],
+    hung: ['зависла', 'red'],
+    idle: ['давно не запускалась', 'amber']
+  };
+  const TH = Object.assign({ pr_stale_days: 1, pr_critical_days: 2, task_stale_days: 2 }, (R.meta && R.meta.thresholds) || {});
+
+  let personFilter = '';
+  try { personFilter = localStorage.getItem('standup.person') || ''; } catch (e) {}
+
+  function ageBadge(n, isWarn, isBad) {
+    if (n == null) return '';
+    const cls = isBad(n) ? 'bad' : isWarn(n) ? 'warn' : '';
+    return `<span class="age ${cls}">${n === 0 ? 'сегодня' : days(n)}</span>`;
+  }
+
+  function personLevel(p) {
+    if (p.absent) return 'absent';
+    const sig = R.signals.filter(s => s.owner === p.name);
+    if (sig.some(s => s.level === 'red')) return 'red';
+    if (sig.some(s => s.level === 'yellow') || p.flags.length) return 'yellow';
+    return 'ok';
+  }
+
+  // ---------- шапка ----------
+  function header() {
+    const [label, color] = LEVEL[R.status.level];
+    const s = R.sprint;
+    const gen = new Date(R.meta.generated_at);
+    const timePct = Math.round(s.day / s.days_total * 100);
+    const sources = Object.entries(R.meta.sources).map(([k, v]) =>
+      `<span><span class="dot ${v === 'ok' ? 'ok' : 'bad'}"></span>${SRC[k] || k}${v === 'ok' ? '' : ' — недоступен'}</span>`).join('');
+    const hints = (R.meta.setup_hints || []).map(h =>
+      `<div class="banner"><b>${esc(SRC[h.name] || h.name)} не подключён</b>: ${esc(h.reason)}. Данные по нему не собраны. <a href="${esc(h.doc_url)}" target="_blank" rel="noopener">Как подключить</a></div>`).join('');
+    return `
+    <header class="verdict" style="--status:${color}">
+      <div class="verdict-row">
+        <div>
+          <span class="level">${label} статус · ${esc(R.meta.team)}</span>
+          <h1>${esc(R.status.summary)}</h1>
+        </div>
+        <div class="meta">
+          Собрано ${gen.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })} в ${gen.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}<br>
+          ${esc(R.meta.generated_by)}<br>
+          <button class="btn" id="theme" type="button">Сменить тему</button>
+        </div>
+      </div>
+      <div class="sprint">
+        <span><b>${esc(s.name)}</b> · день ${s.day} из ${s.days_total} · ${fmtDate(s.start)}–${fmtDate(s.end)}</span>
+        <span title="Чёрная полоса — закрыто SP, жёлтая отметка — прошедшее время спринта">
+          <span class="bar" style="display:inline-block;vertical-align:middle"><i style="width:${s.done_pct}%"></i><s style="left:${timePct}%"></s></span>
+          <b style="margin-left:8px">${s.done_pct}%</b> <span class="muted">(${s.sp_done} из ${s.sp_total} SP)</span>
+        </span>
+        <span class="muted">${esc(s.risk)}</span>
+        <span class="sources">${sources}</span>
+      </div>
+      ${s.scope_added.length ? `<div class="small muted" style="margin-top:8px">Добавлено после старта: ${s.scope_added.map(x => `<a href="${esc(x.url)}">${esc(x.key)}</a> ${esc(x.title)}`).join(', ')}</div>` : ''}
+    </header>
+    ${hints}`;
+  }
+
+  // ---------- кто чем занят ----------
+  function people() {
+    const list = R.people.filter(p => !personFilter || p.name === personFilter);
+    return `<section><h2>Кто чем занят</h2><div class="people">${list.map(p => {
+      const lvl = personLevel(p);
+      const tasks = p.active.length
+        ? p.active.map(t => `<div class="task"><a class="key" href="${esc(t.url)}">${esc(t.key)}</a><span class="t" title="${esc(t.title)}">${esc(t.title)}</span><span class="st">${esc(t.status)}</span>${p.absent ? `<span class="age">${days(t.days_no_move)}</span>` : ageBadge(t.days_no_move, n => n >= TH.task_stale_days, n => n > TH.task_stale_days)}</div>`).join('')
+        : `<div class="empty-work">Нет задач в работе</div>`;
+      const prs = p.prs.map(x => `<a href="${esc(x.url)}">${esc(x.repo)}#${x.id}</a>`).join(', ');
+      const flags = [
+        p.absent ? `${esc(p.absent.reason)} до ${fmtDate(p.absent.to)}` : '',
+        ...p.blockers.map(b => `Блокер: ${esc(b.text)}`),
+        ...p.flags.filter(f => !(p.absent && f.startsWith('в отпуске')) && !(!p.active.length && f === 'нет задач в работе'))
+      ].filter(Boolean).map(f => `<div>${f}</div>`).join('');
+      const own = R.signals.filter(s => s.owner === p.name).length;
+      const fallback = own ? `<div>${own} ${plural(own, 'сигнал', 'сигнала', 'сигналов')} в «Требует внимания»</div>` : p.active.length ? '<span class="small muted">Всё в порядке</span>' : '';
+      return `<div class="person" data-level="${lvl}">
+        <div class="who"><b>${esc(p.name)}</b><span class="small muted">${ROLE[p.role] || p.role}${prs ? ` · PR ${prs}` : ''}</span></div>
+        <div>${tasks}</div>
+        <div class="flags">${flags || fallback}</div>
+      </div>`;
+    }).join('')}</div></section>`;
+  }
+
+  // ---------- сигналы ----------
+  function signals() {
+    const list = R.signals
+      .filter(s => !personFilter || s.owner === personFilter)
+      .sort((a, b) => (a.level === b.level ? b.age_days - a.age_days : a.level === 'red' ? -1 : 1));
+    const body = list.length ? list.map(s => `
+      <div class="signal" data-level="${s.level}">
+        <span class="mark"></span>
+        <div>
+          <p>${esc(s.text)}</p>
+          <div class="row"><span>${esc(s.owner)} · <a href="${esc(s.url)}">открыть</a></span>
+          <button class="btn copy" type="button" data-text="${esc(s.reminder)}">Скопировать напоминание</button></div>
+        </div>
+      </div>`).join('') : '<p class="muted">Сигналов нет — можно идти работать.</p>';
+    const red = list.filter(s => s.level === 'red').length;
+    return `<aside class="panel"><h2>Требует внимания <span class="muted small">${red} красных, ${list.length - red} жёлтых</span></h2>${body}</aside>`;
+  }
+
+  // ---------- PR ----------
+  function prs() {
+    const list = R.prs.filter(p => !personFilter || p.author === personFilter || p.reviewers.includes(personFilter))
+      .sort((a, b) => b.idle_days - a.idle_days);
+    const build = { ok: ['green', 'сборка ок'], failed: ['red', 'сборка упала'], running: ['grey', 'собирается'] };
+    if (!list.length) return `<section><h2>Pull request'ы</h2><p class="muted">Открытых PR нет.</p></section>`;
+    return `<section><h2>Pull request'ы</h2><div class="panel table-scroll"><table>
+      <tr><th>PR</th><th>Чей ход</th><th>Без движения</th><th>Последнее действие</th><th>Сборка</th></tr>
+      ${list.map(p => {
+        const turn = p.whose_turn === 'reviewers' ? `ревьюеры: ${p.reviewers.map(esc).join(', ')}` : `автор: ${esc(p.author)}`;
+        const [bc, bt] = build[p.build] || ['grey', p.build];
+        return `<tr>
+          <td><a href="${esc(p.url)}">${esc(p.repo)}#${p.id}</a> ${esc(p.title)}<div class="small muted">${esc(p.author)}${p.jira_key ? ` · ${esc(p.jira_key)}` : ' · <span style="color:var(--amber)">нет Jira-ключа</span>'}</div></td>
+          <td>${turn}</td>
+          <td>${ageBadge(p.idle_days, n => n >= TH.pr_stale_days, n => n >= TH.pr_critical_days)}</td>
+          <td class="small muted">${esc(p.last_human_activity)}</td>
+          <td><span class="pill ${bc}">${bt}</span></td></tr>`;
+      }).join('')}</table></div></section>`;
+  }
+
+  // ---------- релизы ----------
+  function releases() {
+    const rel = R.releases;
+    const item = r => `<div class="release"><div class="head"><span><a href="${esc(r.url)}">${esc(r.key)}</a> ${esc(r.title)}</span><span class="pill ${r.issues.length ? 'amber' : 'grey'}">${esc(r.status)}</span></div>
+      <div class="small muted">План ${fmtDate(r.planned_date)}${r.closed_date !== undefined ? ` · факт ${r.closed_date ? fmtDate(r.closed_date) : '—'}` : ''} · связано: ${r.linked.length ? r.linked.map(esc).join(', ') : '<span style="color:var(--amber)">ничего</span>'}</div>
+      ${r.issues.length ? `<div class="issues">${r.issues.map(esc).join('; ')}</div>` : ''}</div>`;
+    return `<section><h2>Релизы (Release 2.0)</h2><div class="panel">
+      <div class="two"><div><h2 class="small muted" style="font-weight:500">Ближайшие</h2>${rel.upcoming.map(item).join('') || '<p class="muted">Нет запланированных.</p>'}</div>
+      <div><h2 class="small muted" style="font-weight:500">Прошедшие за 30 дней</h2>${rel.past.map(item).join('') || '<p class="muted">Нет.</p>'}</div></div>
+      ${rel.ready_without_release.length ? `<div class="banner" style="margin-top:14px">Готово к выводу, но не в релизе: ${rel.ready_without_release.map(x => `<a href="${esc(x.url)}">${esc(x.key)}</a> ${esc(x.title)} (${esc(x.assignee)})`).join(', ')}</div>` : ''}
+    </div></section>`;
+  }
+
+  // ---------- автотесты ----------
+  function tests() {
+    const t = R.tests;
+    const jenkinsDown = R.meta.sources.jenkins !== 'ok';
+    const jobs = jenkinsDown
+      ? '<p class="small muted">Состояние джоб Jenkins неизвестно — источник недоступен.</p>'
+      : (t.jobs || []).map(j => {
+          const [label, color] = JOB_STATE[j.state] || [j.state, 'grey'];
+          const name = j.url ? `<a href="${esc(j.url)}">${esc(j.name)}</a>` : esc(j.name);
+          return `<div>${name} <span class="pill ${color}">${esc(label)}</span>${j.last_run ? ` <span class="small muted">${fmtDate(j.last_run)}</span>` : ''}</div>`;
+        }).join('') || '<p class="small muted">Джоб нет.</p>';
+    const launches = t.launches.map(l => {
+      const bad = l.failed + l.broken;
+      return `<tr><td><a href="${esc(l.url)}">${esc(l.name)}</a><div class="small muted">${esc(l.project)}</div></td>
+        <td class="num">${l.passed}</td><td class="num" style="color:${bad ? 'var(--red)' : 'inherit'}">${l.failed}</td><td class="num">${l.broken}</td><td class="num muted">${l.skipped}</td>
+        <td><span class="pill ${bad ? 'red' : 'green'}">${bad ? 'красный' : 'зелёный'}</span></td></tr>`;
+    }).join('');
+    const fails = t.failures.map(f => `<tr><td><span class="sig">${esc(f.test)}</span></td>
+      <td>${f.is_new ? '<span class="pill red">новое</span>' : ''} ${f.flaky_rate ? `<span class="pill amber">flaky ${Math.round(f.flaky_rate * 100)}%</span>` : ''}</td>
+      <td class="small">${f.short_cause ? esc(f.short_cause) : '<span class="muted">не разобрано — запустите /tests</span>'}</td></tr>`).join('');
+    const cov = R.coverage.projects.map(c => {
+      const color = c.pct < c.target ? 'var(--amber)' : 'var(--green)';
+      const d = c.delta_prev > 0 ? `+${c.delta_prev}` : c.delta_prev;
+      return `<div class="cov"><span>${esc(c.name)}</span>
+        <span class="bar" title="${c.automated} из ${c.total} кейсов, цель ${c.target}%"><i style="width:${c.pct}%;--cv:${color}"></i><s style="left:${c.target}%"></s></span>
+        <span><b>${c.pct}%</b> <span class="small" style="color:${c.delta_prev < 0 ? 'var(--red)' : 'var(--green)'}">${d}</span></span></div>`;
+    }).join('');
+    return `<section><h2>Автотесты</h2><div class="panel">
+      <div class="table-scroll"><table><tr><th>Последний лонч</th><th class="num">Прошло</th><th class="num">Упало</th><th class="num">Broken</th><th class="num">Пропущено</th><th></th></tr>${launches}</table></div>
+      <h2 style="margin-top:20px">Падения</h2>
+      <div class="table-scroll"><table>${fails}</table></div>
+      <p class="small muted">Полный разбор с группировкой по причинам — на вкладке «Тесты»${T ? ` (обновлён ${new Date(T.meta.generated_at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })})` : ''}.</p>
+      <div class="two" style="margin-top:12px">
+        <div><h2>Покрытие автотестами</h2>${cov}<p class="small muted">Жёлтая отметка — целевое покрытие.</p></div>
+        <div><h2>Джобы Jenkins</h2>${jobs}</div>
+      </div>
+    </div></section>`;
+  }
+
+  // ---------- рекомендации ----------
+  function recs() {
+    const list = R.recommendations.filter(r => !personFilter || r.who.includes(personFilter));
+    return `<section><h2>Что делать</h2><div class="panel"><ol class="recs">${list.map(r => `
+      <li><b>${esc(r.who)}</b><span>${esc(r.what)}</span><span class="muted">${esc(r.when)}</span><span class="why">${esc(r.why)}</span></li>`).join('') || '<li class="muted">Рекомендаций нет.</li>'}</ol></div></section>`;
+  }
+
+  // ---------- вкладка «Тесты» ----------
+  function testsTab() {
+    if (!T) return `<div class="panel"><h2>Разбора падений ещё нет</h2><p>Запустите <b>/tests</b> — агент сгруппирует падения по причинам и сохранит разбор сюда.</p></div>`;
+    const cat = { 'окружение': 'grey', 'баг продукта': 'red', 'flaky': 'amber', 'ошибка теста': 'amber', 'данные': 'grey' };
+    const total = T.clusters.reduce((a, c) => a + c.count, 0);
+    return `<div class="panel">
+      <h2>Разбор падений <span class="muted small">${total} ${plural(total, 'падение', 'падения', 'падений')} в ${T.clusters.length} ${plural(T.clusters.length, 'группе', 'группах', 'группах')} · ${T.meta.launches.map(esc).join(', ')} · ${esc(T.meta.generated_by)}</span></h2>
+      ${T.clusters.map((c, i) => `<details class="cluster" ${i === 0 ? 'open' : ''}>
+        <summary><div><span class="pill ${cat[c.category] || 'grey'}">${esc(c.category)}</span> <b>${c.count} ${plural(c.count, 'тест', 'теста', 'тестов')}</b><div class="sig" style="margin-top:4px">${esc(c.signature)}</div></div>
+          <div>${c.jira_bug ? `<a href="${esc(c.jira_bug.url)}">${esc(c.jira_bug.key)}</a>` : c.suggested_bug ? '<span class="pill amber">бага нет</span>' : ''}</div></summary>
+        <div class="body">
+          <p style="margin:0 0 8px">${esc(c.cause)}</p>
+          ${c.jenkins_log_excerpt ? `<pre>${esc(c.jenkins_log_excerpt)}</pre>` : ''}
+          ${c.suggested_bug ? `<div class="bugdraft"><b>Черновик бага:</b> ${esc(c.suggested_bug.title)}<div class="small muted">${esc(c.suggested_bug.description)}</div>
+            <button class="btn copy" style="margin-top:8px" type="button" data-text="${esc(c.suggested_bug.title + '\n\n' + c.suggested_bug.description)}">Скопировать черновик</button></div>` : ''}
+          <div class="small" style="margin-top:8px">${c.tests.map(t => `<div><a class="sig" href="${esc(t.url)}">${esc(t.name)}</a></div>`).join('')}</div>
+        </div></details>`).join('')}
+    </div>`;
+  }
+
+  // ---------- сборка ----------
+  let tab = 'standup';
+  try { tab = localStorage.getItem('standup.tab') || 'standup'; } catch (e) {}
+
+  function render() {
+    const opts = R.people.map(p => `<option ${p.name === personFilter ? 'selected' : ''}>${esc(p.name)}</option>`).join('');
+    app.innerHTML = header() + `
+      <div class="toolbar">
+        <div class="tabs" role="tablist">
+          <button role="tab" aria-selected="${tab === 'standup'}" data-tab="standup">Стендап</button>
+          <button role="tab" aria-selected="${tab === 'tests'}" data-tab="tests">Тесты</button>
+        </div>
+        ${tab === 'standup' ? `<label class="small muted">Сотрудник <select id="person"><option value="">Вся команда</option>${opts}</select></label>` : ''}
+      </div>
+      ${tab === 'standup'
+        ? `<div class="grid"><div>${people()}${prs()}${releases()}${tests()}${recs()}</div>${signals()}</div>`
+        : testsTab()}`;
+  }
+
+  app.addEventListener('click', e => {
+    const tb = e.target.closest('[data-tab]');
+    if (tb) { tab = tb.dataset.tab; try { localStorage.setItem('standup.tab', tab); } catch (x) {} render(); return; }
+    const cp = e.target.closest('.copy');
+    if (cp) {
+      const done = () => { const old = cp.textContent; cp.textContent = 'Скопировано'; cp.classList.add('copied'); setTimeout(() => { cp.textContent = old; cp.classList.remove('copied'); }, 1500); };
+      if (navigator.clipboard) navigator.clipboard.writeText(cp.dataset.text).then(done, () => fallbackCopy(cp.dataset.text, done));
+      else fallbackCopy(cp.dataset.text, done);
+      return;
+    }
+    if (e.target.id === 'theme') {
+      const root = document.documentElement;
+      const dark = root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+      root.dataset.theme = dark ? 'light' : 'dark';
+      try { localStorage.setItem('standup.theme', root.dataset.theme); } catch (x) {}
+    }
+  });
+  app.addEventListener('change', e => {
+    if (e.target.id === 'person') { personFilter = e.target.value; try { localStorage.setItem('standup.person', personFilter); } catch (x) {} render(); }
+  });
+  function fallbackCopy(text, done) {
+    const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch (x) {} ta.remove();
+  }
+  try { const th = localStorage.getItem('standup.theme'); if (th) document.documentElement.dataset.theme = th; } catch (e) {}
+  render();
+})();
+</script>
+</body>
+</html>
