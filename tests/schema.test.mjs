@@ -61,3 +61,21 @@ test('CLI exit codes', () => {
   const gone = spawnSync('node', [bin, sch, '/nonexistent.json'], { encoding: 'utf8' });
   assert.equal(gone.status, 2); assert.ok(gone.stderr.length > 0);
 });
+
+test('meta.questions items are typed', () => {
+  const r = report(); r.meta.questions = [{ person: 1 }];
+  const e = validate(reportSchema, r);
+  assert.ok(e.includes('$.meta.questions[0].person: expected string'));
+  assert.ok(e.includes('$.meta.questions[0].text: required'));
+});
+
+test('enums: invalid whose_turn, category, job state rejected', () => {
+  const r = report();
+  r.prs[0].whose_turn = 'nobody';
+  r.signals[0].category = 'x';
+  r.tests.jobs = [{ name: 'j', state: 'broken' }];
+  const e = validate(reportSchema, r);
+  assert.ok(e.includes('$.prs[0].whose_turn: expected one of reviewers|author'));
+  assert.ok(e.includes('$.signals[0].category: expected one of sprint|people|pr|release|tests|coverage'));
+  assert.ok(e.includes('$.tests.jobs[0].state: expected one of ok|failed_before_tests|hung|idle'));
+});

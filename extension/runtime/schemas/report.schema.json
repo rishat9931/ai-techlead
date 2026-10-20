@@ -74,7 +74,21 @@
         },
         "questions": {
           "type": "array",
-          "items": {}
+          "items": {
+            "type": "object",
+            "required": [
+              "person",
+              "text"
+            ],
+            "properties": {
+              "person": {
+                "type": "string"
+              },
+              "text": {
+                "type": "string"
+              }
+            }
+          }
         }
       }
     },
