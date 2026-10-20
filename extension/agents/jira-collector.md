@@ -28,15 +28,24 @@ MCP-сервер `atlassian` и пишешь один файл `reports/raw/<д�
    (по истории спринта/changelog). Активного спринта нет → `sprint: null`.
 3. **Задачи.** Собери `issues[]`: все задачи активного спринта + задачи проекта вне спринта, у которых статус
    в группах `active` или `blocked`. Для каждой:
-   `{key, title, type, status, status_group, assignee, last_status_change, links[], url}`:
+   `{key, title, type, status, status_group, assignee, in_sprint, last_status_change, links[], url}`:
    - `status_group` — `active | blocked | ready_for_release | done`, по точному совпадению названия статуса
      со списками `jira.statuses`; не совпало ни с одной группой → `other`;
    - `assignee` — логин Jira или `null`; дополнительно `story_points` (или `null`, если оценки нет);
+   - `in_sprint` — `true`, если задача в активном спринте, `false` — задача в работе вне спринта (поле обязательно у каждой задачи);
    - `last_status_change` — дата-время последней смены статуса из changelog (ISO 8601), не дата обновления;
-   - `links[]` — ключи связанных задач (`[{key, type}]`), `url` — ссылка на задачу.
-4. **Release 2.0.** JQL по типу `release.issue_type`: плановая дата в окне [дата − `back_days`; дата + `ahead_days`]
-   (календарные дни) либо тикет открыт. `releases[]`:
-   `{key, title, status, planned_date, closed_date, last_status_change, links[], url}`; `links[]` — ключи связанных задач.
+   - `links[]` — связи задачи в едином формате `[{key, link_type}]`, где `link_type` — название типа связи Jira
+     (например, `"relates to"`, `"blocks"`); `url` — ссылка на задачу.
+4. **Release 2.0.** Задачи типа `release.issue_type` проекта. Поля:
+   `{key, title, status, planned_date, closed_date, last_status_change, links[], url}`:
+   - `planned_date` — поле Jira `duedate`; если оно пустое — поле, в названии которого есть «дата вывода»
+     или «planned»; иначе `null`. `closed_date` — дата резолюции или `null`;
+   - `links[]` — тот же формат, что у задач: `[{key, link_type}]`.
+   В `releases[]` попадает тикет, если **либо** `planned_date` в окне [сегодня − `back_days`; сегодня + `ahead_days`]
+   (календарные дни, «сегодня» = входная дата), **либо** тикет открыт (не в группе `done`) и `planned_date` < сегодня (просрочен).
+   Открытые тикеты с датой дальше окна в выборку не берутся. Открытые тикеты без `planned_date` не попадают в
+   `releases[]` — их пиши отдельно в `releases_undated[]` (тот же формат, не более 20).
+   Сортировка `releases[]` — по |`planned_date` − сегодня| по возрастанию.
 5. **Готовое без релиза.** Задачи в статусах группы `ready_for_release`, тип не из `release.exclude_types`,
    без связи с задачей типа `release.issue_type` → `ready_without_release[]` `{key, title, assignee, url}`.
 6. **Чужие люди.** Логины исполнителей из `issues[]`, которых нет в `team.members[].jira` →
@@ -44,7 +53,7 @@ MCP-сервер `atlassian` и пишешь один файл `reports/raw/<д�
 7. **Лимиты.** Не более 300 задач в `issues[]` и 50 в `releases[]`; если упёрлись — добавь
    `truncated: true` в `data`. Описания и комментарии задач не сохраняй — только поля выше.
 8. **Запись.** `mkdir -p reports/raw/<дата>` и запиши `reports/raw/<дата>/jira.json`:
-   `{"source": "jira", "collected_at": "<ISO 8601 сейчас>", "data": {sprint, issues, releases, ready_without_release, unknown_people}}`.
+   `{"source": "jira", "collected_at": "<ISO 8601 сейчас>", "data": {sprint, issues, releases, releases_undated, ready_without_release, unknown_people}}`.
    Если MCP недоступен, ошибка авторизации или запрос упал — запиши
    `{"source": "jira", "collected_at": "…", "error": "<коротко что случилось>"}` без `data`.
    Частичный успех (например, нет спринта, но задачи есть) — это `data`, а не `error`.

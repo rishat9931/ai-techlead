@@ -54,3 +54,9 @@ for (const f of files) {
     });
   }
 }
+
+test('контракты сборщиков: in_sprint в jira, job в testops', () => {
+  const body = (n) => parse(readFileSync(join(AGENTS, `${n}.md`), 'utf8')).body;
+  assert.match(body('jira-collector'), /\bin_sprint\b/);
+  assert.match(body('testops-collector'), /launches\[\]`: `\{project, job,/);
+});

@@ -23,7 +23,9 @@ MCP-сервер `testops` и пишешь один файл `reports/raw/<да�
    `thresholds.flaky_history_runs` (N).
    В режиме `tests` с фильтром по джобе оставь только проект(ы) из `testops_project` этой джобы.
 2. **Лончи.** Для каждого проекта — последний завершённый лонч (и последний лонч каждой джобы из маппинга,
-   если они различаются). `launches[]`: `{project, name, passed, failed, broken, skipped, started_at, url}`.
+   если они различаются). `launches[]`: `{project, job, name, passed, failed, broken, skipped, started_at, url}`.
+   `job` — имя джобы Jenkins из `jenkins.jobs`, у которой `testops_project` совпадает с проектом лонча и
+   `name` встречается в имени или тегах лонча; не нашлось — `null`.
 3. **Падения.** Для каждого лонча из шага 2 — тесты в статусах failed и broken. `failures[]`:
    `{test, project, message, trace_top, first_failed_at, history, url}`:
    - `test` — полное имя теста; `message` — первая строка сообщения об ошибке (до 300 символов);
