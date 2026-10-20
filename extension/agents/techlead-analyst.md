@@ -88,11 +88,12 @@ description: Строит снимок стендапа reports/<дата>.json 
      `assignee` → имя.
    - `tests.jobs[]` `{name, state, last_run, url}`: `hung` и `failed_before_tests` — как в raw; `ok` → `idle`, если
      `last_run` = `null` или `job:<name>` > `jenkins.max_idle_days`; иначе `ok`.
-   - `tests.launches[]` `{project, name, passed, failed, broken, skipped, url}`; `project` — `name` проекта из `testops.projects`
-     по `id` (не нашёлся — как в raw).
+   - **Проект TestOps** везде в отчёте — `name` из `testops.projects[]` по `id` (не нашёлся — значение как в raw):
+     в `tests.launches[].project`, `tests.failures[].project` и `coverage.projects[].name`.
+   - `tests.launches[]` `{project, name, passed, failed, broken, skipped, url}`.
    - `tests.failures[]` `{test, project, is_new, flaky_rate, short_cause, url}`: `flaky_rate` = доля `fail` в `history`
      (2 знака, пустая история → 0); `is_new` и `short_cause` — шаги 5–6.
-   - `coverage.projects[]` `{name, automated, total, pct = round(automated/total·100), target = testops.coverage_target,
+   - `coverage.projects[]` `{name (имя проекта, см. выше), automated, total, pct = round(automated/total·100), target = testops.coverage_target,
      delta_prev}`; проекты с `automated`/`total` = `null` или `total` 0 пропусти.
 5. **Дельты к прошлому снимку.** `is_new` = теста (по `test`+`project`) не было в `tests.failures` прошлого снимка;
    если прошлого снимка нет или в нём `sources.testops` ≠ `ok` — `is_new` = дата `first_failed_at` ≥ дата прошлого снимка
@@ -103,14 +104,25 @@ description: Строит снимок стендапа reports/<дата>.json 
    Сам причины падений не придумывай (их разбирает `/tests`).
 7. **Сигналы** — пороги из `thresholds`, все дни — рабочие из шага 3. Каждому сигналу:
    `{id: "s1","s2",… по порядку, level, category, text, owner, age_days, url, reminder}`.
-   `owner` — имя из `team.members` или «Техлид»; `url` — ссылка на задачу/PR/лонч/джобу, если есть.
+   `owner` — имя из `team.members` или «Техлид»; `url` — ссылка на задачу/PR/лонч/джобу; `age_days` — рабочие дни простоя/
+   без движения исходного элемента (задачи, PR, релиза, джобы; для состояния «нет задач» — с последней смены статуса его
+   задач, если известно) из шага 3, для событий сегодняшнего дня — `0`. Нет ссылки или нельзя посчитать дни — **поле не пиши**
+   (никогда не `null`).
+   **Охрана источников:** сигнал строится только если все источники, от которых он зависит, `ok` или `partial`
+   (см. `meta.sources`). Jira — сигналы `sprint`, `people`, `release` и `meta.questions`; Bitbucket — все сигналы `pr`
+   и любые проверки «есть открытый PR»; TestOps — `tests` по лончам/падениям и `coverage`; Jenkins — `tests` по джобам.
+   Занятость человека: задачи в `active` (если jira `ok|partial`) **или** открытые PR, где он автор/ревьюер — PR учитываются
+   только если bitbucket `ok|partial`; bitbucket `unavailable` → занятость только по Jira, сигнал «задача в ревью без PR»
+   и PR-сигналы не ставятся. Jira `unavailable` → никаких сигналов «без работы»/«без движения» по людям и пустой `meta.questions`.
    🔴 `red`:
    - нет активного спринта (jira ok, `sprint` = `null`) — `sprint`, «Техлид»;
-   - красный smoke: лонч, у которого `job` — джоба со `smoke: true`, и `failed + broken > 0` (в тексте — сколько упало и
+   - красный smoke: лонч smoke-джобы и `failed + broken > 0`. Джоба лонча — `launches[].job`; если `job` = `null` — джоба из
+     `jenkins.jobs[]` с `testops_project` = проект лонча (по `id`); smoke-признак — её флаг `smoke: true` из конфига (в тексте — сколько упало и
      сколько из них `is_new`) — `tests`, владелец — первый участник с ролью `aqa` (нет — `qa`, нет — «Техлид»);
-   - джоба `smoke: true` в состоянии `failed_before_tests` или `hung` — `tests`;
-   - присутствующий сотрудник без работы: нет задач в `active` и нет открытых PR, где он автор или ревьюер — `people`, он сам;
-   - PR: `idle_days > pr_critical_days` — `pr`, владелец — тот, чей ход (ревьюеры → первый ревьюер без апрува;
+   - джоба `smoke: true` в состоянии `failed_before_tests` или `hung` (по `jenkins.json`) — `tests`, всегда `red`;
+   - присутствующий сотрудник без работы (только при jira `ok|partial`): нет задач в `active` и — если bitbucket `ok|partial` —
+     нет открытых PR, где он автор или ревьюер — `people`, он сам;
+   - PR (только при bitbucket `ok|partial`): `idle_days > pr_critical_days` — `pr`, владелец — тот, чей ход (ревьюеры → первый ревьюер без апрува;
      автор → автор).
    🟡 `yellow`:
    - PR: `pr_stale_days < idle_days ≤ pr_critical_days` — `pr`; PR без `jira_key` — `pr`, автор;
@@ -123,6 +135,7 @@ description: Строит снимок стендапа reports/<дата>.json 
    - покрытие ниже `target` или `delta_prev < 0` — `coverage`, aqa;
    - джоба в `idle` (не smoke-падение) — `tests`; не-smoke джоба в `failed_before_tests`/`hung` — `tests`;
    - задача в статусе ревью (название статуса содержит «ревью»/«review») без PR с её `jira_key` — `people`;
+     только если и jira, и bitbucket `ok|partial`;
    - `sprint.risk` не `null` — `sprint`, «Техлид»;
    - `unknown_people` из jira/bitbucket — `people`, «Техлид»;
    - у отсутствующего есть задачи в `active` или открытые PR — `people`, «Техлид», текст «… в отпуске до <to>, <KEY/PR>
@@ -131,7 +144,7 @@ description: Строит снимок стендапа reports/<дата>.json 
    `reminder` — по образцу: обращение по имени, что сделать, срок, ссылка. Пример:
    «Иван, PR pay-core#807 «Идемпотентность платёжных callback-ов» ждёт твоего ревью 3 дня — глянь, пожалуйста, до 13:00:
    <url>». Владельцу «Техлид» — обращение «Коллеги, …». Без ссылки — без выдуманного URL.
-8. **Вопросы по отклонениям** → `meta.questions[]`. Для каждого **присутствующего** человека с сигналом «нет задач в работе»
+8. **Вопросы по отклонениям** → `meta.questions[]` (только при jira `ok|partial`, иначе `[]`). Для каждого **присутствующего** человека с сигналом «нет задач в работе»
    или «без движения > порога», если в конфиге нет объяснения (нет `absent`, покрывающего эти дни, и дня нет в
    `calendar.holidays`), добавь один элемент на человека: `{person: "<Имя>", text: "У <Имя> <отклонение> — это
    отпуск/больничный или праздник?"}`. Например: `{"person": "Олег Кузнецов", "text": "У Олега Кузнецова нет задач
@@ -144,7 +157,8 @@ description: Строит снимок стендапа reports/<дата>.json 
     перегруженного к свободному, ревью зависшего PR, один корень у нескольких сигналов (стенд, релиз).
 11. **Запись и проверка.** Запиши `reports/<дата>.json` (UTF-8, отступ 2) и выполни
     `node .techlead/bin/validate.mjs .techlead/schemas/report.schema.json reports/<дата>.json`.
-    Код 1 — исправь файл по сообщениям из stderr и проверь снова, **максимум 2 раза**; не помогло — сообщи ошибки оркестратору.
+    Код 1 — исправь файл по сообщениям из stderr и проверь снова. Код 2 — файл не читается или не JSON: перезапиши его целиком
+    валидным JSON и проверь снова. Вместе — **максимум 2 попытки исправления**; не помогло — сообщи ошибки оркестратору.
 
 ## Выход (контракт)
 - Файл `reports/<дата>.json` — объект с ключами `meta, status, sprint, people, signals, prs, releases, tests, coverage,
@@ -153,6 +167,8 @@ description: Строит снимок стендапа reports/<дата>.json 
   `signals[].category` ∈ `sprint|people|pr|release|tests|coverage`; `prs[].whose_turn` ∈ `reviewers|author` или поля нет;
   `tests.jobs[].state` ∈ `ok|failed_before_tests|hung|idle`.
 - `meta.questions` — массив `{person, text}` (может быть пустым).
+- Общее правило: поле, которое по `report.schema.json` не допускает `null` (например `signals[].url`, `signals[].age_days`,
+  `prs[].whose_turn`, числа в `coverage`), при отсутствии значения **опускается**, а не пишется как `null`.
 
 ## Ответ оркестратору
 Не более 5 строк, без дампа JSON. Пример:
@@ -167,7 +183,9 @@ analyst: ok → reports/2026-10-20.json (валиден)
 
 ## Запрещено
 - Обращаться к внешним системам и писать в них: ты работаешь только с локальными файлами.
-- Выдумывать данные: нет значения — `null`, пустой список или поле не пишется; не угадывай причины, даты, ссылки и людей.
+- Писать `null` в поля, где схема его не допускает (`signals[].url`, `signals[].age_days` и др.) — такие поля опускай.
+- Строить сигнал по источнику со статусом `unavailable` (см. «Охрана источников»).
+- Выдумывать данные: нет значения — `null` (где схема разрешает), пустой список или поле не пишется; не угадывай причины, даты, ссылки и людей.
   Недоступный источник — пустые разделы и `unavailable`, а не догадки.
 - Считать рабочие дни в уме — только через `workdays.mjs`.
 - Выводить токены и значения переменных окружения.

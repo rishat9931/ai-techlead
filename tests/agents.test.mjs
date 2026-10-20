@@ -68,3 +68,15 @@ test('аналитики: техлид — workdays.mjs, validate.mjs, meta.ques
   const t = body('tests-analyst');
   for (const s of ['tests-report.schema.json', 'top_clusters']) assert.ok(t.includes(s), s);
 });
+
+test('аналитики: охрана источников и smoke-фолбэк; оба с «Запрещено»', () => {
+  const body = (n) => parse(readFileSync(join(AGENTS, `${n}.md`), 'utf8')).body;
+  const a = body('techlead-analyst');
+  for (const s of ['partial', 'testops_project']) assert.ok(a.includes(s), s);
+  for (const n of ['techlead-analyst', 'tests-analyst']) assert.ok(body(n).includes('Запрещено'), n);
+});
+
+test('аналитики: обработка кода 2 validate.mjs (битый JSON)', () => {
+  const body = (n) => parse(readFileSync(join(AGENTS, `${n}.md`), 'utf8')).body;
+  for (const n of ['techlead-analyst', 'tests-analyst']) assert.match(body(n), /Код 2/, n);
+});
