@@ -9,7 +9,8 @@
       "properties": {
         "generated_at": { "type": "string" },
         "generated_by": { "type": "string" },
-        "launches": { "type": "array", "items": { "type": "string" } }
+        "launches": { "type": "array", "items": { "type": "string" } },
+        "notes": { "type": "array", "items": { "type": "string" } }
       }
     },
     "clusters": {

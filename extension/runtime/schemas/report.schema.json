@@ -28,6 +28,10 @@
         "team": {
           "type": "string"
         },
+        "release_type": {
+          "type": "string",
+          "description": "тип задачи релиза (release.issue_type), необязательно"
+        },
         "sources": {
           "type": "object",
           "description": "имя источника -> ok|unavailable|..."
@@ -232,7 +236,9 @@
           },
           "flags": {
             "type": "array",
-            "items": {}
+            "items": {
+              "type": "string"
+            }
           }
         }
       }

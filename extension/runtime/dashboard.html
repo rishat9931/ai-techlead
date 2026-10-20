@@ -51,7 +51,7 @@ h2 { font: 600 17px/1.3 var(--sans); margin: 0 0 12px; }
 .bar s { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--amber); text-decoration: none; }
 .sources { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; }
 .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; vertical-align: 1px; }
-.dot.ok { background: var(--green); } .dot.bad { background: var(--red); }
+.dot.ok { background: var(--green); } .dot.bad { background: var(--red); } .dot.partial { background: var(--amber); }
 
 .banner { background: var(--amber-bg); color: var(--ink); border-left: 4px solid var(--amber); padding: 10px 16px; margin: 16px 0 0; font-size: 14px; }
 
@@ -177,6 +177,10 @@ pre { background: var(--grey-bg); padding: 10px 12px; border-radius: 6px; overfl
   const fmtDate = d => d ? new Date(d).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' }) : '—';
   const plural = (n, a, b, c) => { const m = n % 10, h = n % 100; return m === 1 && h !== 11 ? a : m >= 2 && m <= 4 && (h < 10 || h >= 20) ? b : c; };
   const days = n => `${n} ${plural(n, 'день', 'дня', 'дней')}`;
+  // ссылки из данных — только http(s), иначе ссылку не рисуем
+  const safeUrl = u => (typeof u === 'string' && /^https?:\/\//i.test(u.trim()) ? u.trim() : '');
+  const link = (u, inner, attrs = '') => { const h = safeUrl(u); return h ? `<a ${attrs}href="${esc(h)}">${inner}</a>` : `<span ${attrs}>${inner}</span>`; };
+  const isNum = n => typeof n === 'number' && isFinite(n);
   const LEVEL = { red: ['Красный', 'var(--red)'], yellow: ['Жёлтый', 'var(--amber)'], green: ['Зелёный', 'var(--green)'] };
   const ROLE = { dev: 'разработка', qa: 'тестирование', aqa: 'автотесты', analyst: 'аналитика' };
   const SRC = { jira: 'Jira', bitbucket: 'Bitbucket', jenkins: 'Jenkins', testops: 'TestOps' };
@@ -186,6 +190,13 @@ pre { background: var(--grey-bg); padding: 10px 12px; border-radius: 6px; overfl
     hung: ['зависла', 'red'],
     idle: ['давно не запускалась', 'amber']
   };
+  R.meta = R.meta || {};
+  const SOURCES = R.meta.sources || {};
+  const srcDown = k => SOURCES[k] === 'unavailable';
+  // пустое состояние: источник недоступен или данных просто нет
+  const emptyNote = (src, emptyText) => srcDown(src)
+    ? `<p class="small muted">Данные недоступны — ${esc(SRC[src] || src)}: источник недоступен.</p>`
+    : `<p class="small muted">${emptyText}</p>`;
   const TH = Object.assign({ pr_stale_days: 1, pr_critical_days: 2, task_stale_days: 2 }, (R.meta && R.meta.thresholds) || {});
 
   let personFilter = '';
@@ -201,20 +212,34 @@ pre { background: var(--grey-bg); padding: 10px 12px; border-radius: 6px; overfl
     if (p.absent) return 'absent';
     const sig = R.signals.filter(s => s.owner === p.name);
     if (sig.some(s => s.level === 'red')) return 'red';
-    if (sig.some(s => s.level === 'yellow') || p.flags.length) return 'yellow';
+    if (sig.some(s => s.level === 'yellow') || (p.flags || []).length) return 'yellow';
     return 'ok';
   }
 
   // ---------- шапка ----------
   function header() {
     const [label, color] = LEVEL[R.status.level];
-    const s = R.sprint;
+    const s = R.sprint || {};
     const gen = new Date(R.meta.generated_at);
-    const timePct = Math.round(s.day / s.days_total * 100);
-    const sources = Object.entries(R.meta.sources).map(([k, v]) =>
-      `<span><span class="dot ${v === 'ok' ? 'ok' : 'bad'}"></span>${SRC[k] || k}${v === 'ok' ? '' : ' — недоступен'}</span>`).join('');
-    const hints = (R.meta.setup_hints || []).map(h =>
-      `<div class="banner"><b>${esc(SRC[h.name] || h.name)} не подключён</b>: ${esc(h.reason)}. Данные по нему не собраны. <a href="${esc(h.doc_url)}" target="_blank" rel="noopener">Как подключить</a></div>`).join('');
+    const sources = Object.entries(SOURCES).map(([k, v]) => {
+      const st = v === 'ok' ? ['ok', ''] : v === 'partial' ? ['partial', ' — частично'] : ['bad', ' — недоступен'];
+      return `<span><span class="dot ${st[0]}"></span>${esc(SRC[k] || k)}${st[1]}</span>`;
+    }).join('');
+    const hints = (R.meta.setup_hints || []).map(h => {
+      const doc = safeUrl(h.doc_url);
+      return `<div class="banner"><b>${esc(SRC[h.name] || h.name)} не подключён</b>: ${esc(h.reason)}. Данные по нему не собраны.${doc ? ` <a href="${esc(doc)}" target="_blank" rel="noopener">Как подключить</a>` : ''}</div>`;
+    }).join('');
+    const hasSprint = !!(s.name || isNum(s.days_total) || isNum(s.done_pct));
+    const timePct = isNum(s.day) && isNum(s.days_total) && s.days_total > 0 ? Math.round(s.day / s.days_total * 100) : null;
+    const scope = s.scope_added || [];
+    const sprintInfo = hasSprint ? `
+        <span><b>${esc(s.name || 'Спринт')}</b>${isNum(s.day) && isNum(s.days_total) ? ` · день ${s.day} из ${s.days_total}` : ''}${s.start || s.end ? ` · ${fmtDate(s.start)}–${fmtDate(s.end)}` : ''}</span>
+        ${isNum(s.done_pct) ? `<span title="Чёрная полоса — закрыто SP, жёлтая отметка — прошедшее время спринта">
+          <span class="bar" style="display:inline-block;vertical-align:middle"><i style="width:${s.done_pct}%"></i>${timePct != null ? `<s style="left:${timePct}%"></s>` : ''}</span>
+          <b style="margin-left:8px">${s.done_pct}%</b>${isNum(s.sp_done) && isNum(s.sp_total) ? ` <span class="muted">(${s.sp_done} из ${s.sp_total} SP)</span>` : ''}
+        </span>` : ''}
+        ${s.risk ? `<span class="muted">${esc(s.risk)}</span>` : ''}`
+      : `<span class="muted">${srcDown('jira') ? 'Данные недоступны — Jira: источник недоступен' : 'Нет активного спринта'}</span>`;
     return `
     <header class="verdict" style="--status:${color}">
       <div class="verdict-row">
@@ -228,16 +253,10 @@ pre { background: var(--grey-bg); padding: 10px 12px; border-radius: 6px; overfl
           <button class="btn" id="theme" type="button">Сменить тему</button>
         </div>
       </div>
-      <div class="sprint">
-        <span><b>${esc(s.name)}</b> · день ${s.day} из ${s.days_total} · ${fmtDate(s.start)}–${fmtDate(s.end)}</span>
-        <span title="Чёрная полоса — закрыто SP, жёлтая отметка — прошедшее время спринта">
-          <span class="bar" style="display:inline-block;vertical-align:middle"><i style="width:${s.done_pct}%"></i><s style="left:${timePct}%"></s></span>
-          <b style="margin-left:8px">${s.done_pct}%</b> <span class="muted">(${s.sp_done} из ${s.sp_total} SP)</span>
-        </span>
-        <span class="muted">${esc(s.risk)}</span>
+      <div class="sprint">${sprintInfo}
         <span class="sources">${sources}</span>
       </div>
-      ${s.scope_added.length ? `<div class="small muted" style="margin-top:8px">Добавлено после старта: ${s.scope_added.map(x => `<a href="${esc(x.url)}">${esc(x.key)}</a> ${esc(x.title)}`).join(', ')}</div>` : ''}
+      ${scope.length ? `<div class="small muted" style="margin-top:8px">Добавлено после старта: ${scope.map(x => `${link(x.url, esc(x.key))} ${esc(x.title)}`).join(', ')}</div>` : ''}
     </header>
     ${hints}`;
   }
@@ -248,18 +267,20 @@ pre { background: var(--grey-bg); padding: 10px 12px; border-radius: 6px; overfl
     return `<section><h2>Кто чем занят</h2><div class="people">${list.map(p => {
       const lvl = personLevel(p);
       const tasks = p.active.length
-        ? p.active.map(t => `<div class="task"><a class="key" href="${esc(t.url)}">${esc(t.key)}</a><span class="t" title="${esc(t.title)}">${esc(t.title)}</span><span class="st">${esc(t.status)}</span>${p.absent ? `<span class="age">${days(t.days_no_move)}</span>` : ageBadge(t.days_no_move, n => n >= TH.task_stale_days, n => n > TH.task_stale_days)}</div>`).join('')
+        ? p.active.map(t => `<div class="task">${link(t.url, esc(t.key), 'class="key" ')}<span class="t" title="${esc(t.title)}">${esc(t.title)}</span><span class="st">${esc(t.status)}</span>${p.absent ? `<span class="age">${days(t.days_no_move)}</span>` : ageBadge(t.days_no_move, n => n >= TH.task_stale_days, n => n > TH.task_stale_days)}</div>`).join('')
         : `<div class="empty-work">Нет задач в работе</div>`;
-      const prs = p.prs.map(x => `<a href="${esc(x.url)}">${esc(x.repo)}#${x.id}</a>`).join(', ');
+      const prs = (p.prs || []).map(x => link(x.url, `${esc(x.repo)}#${esc(x.id)}`)).join(', ');
       const flags = [
         p.absent ? `${esc(p.absent.reason)} до ${fmtDate(p.absent.to)}` : '',
-        ...p.blockers.map(b => `Блокер: ${esc(b.text)}`),
-        ...p.flags.filter(f => !(p.absent && f.startsWith('в отпуске')) && !(!p.active.length && f === 'нет задач в работе'))
+        ...(p.blockers || []).map(b => `Блокер: ${esc(b && typeof b === 'object' ? b.text : b)}`),
+        ...(p.flags || []).map(f => String(f ?? ''))
+          .filter(f => !(p.absent && f.startsWith('в отпуске')) && !(!p.active.length && f === 'нет задач в работе'))
+          .map(esc)
       ].filter(Boolean).map(f => `<div>${f}</div>`).join('');
       const own = R.signals.filter(s => s.owner === p.name).length;
       const fallback = own ? `<div>${own} ${plural(own, 'сигнал', 'сигнала', 'сигналов')} в «Требует внимания»</div>` : p.active.length ? '<span class="small muted">Всё в порядке</span>' : '';
       return `<div class="person" data-level="${lvl}">
-        <div class="who"><b>${esc(p.name)}</b><span class="small muted">${ROLE[p.role] || p.role}${prs ? ` · PR ${prs}` : ''}</span></div>
+        <div class="who"><b>${esc(p.name)}</b><span class="small muted">${esc(ROLE[p.role] || p.role)}${prs ? ` · PR ${prs}` : ''}</span></div>
         <div>${tasks}</div>
         <div class="flags">${flags || fallback}</div>
       </div>`;
@@ -270,13 +291,13 @@ pre { background: var(--grey-bg); padding: 10px 12px; border-radius: 6px; overfl
   function signals() {
     const list = R.signals
       .filter(s => !personFilter || s.owner === personFilter)
-      .sort((a, b) => (a.level === b.level ? b.age_days - a.age_days : a.level === 'red' ? -1 : 1));
+      .sort((a, b) => (a.level === b.level ? (b.age_days || 0) - (a.age_days || 0) : a.level === 'red' ? -1 : 1));
     const body = list.length ? list.map(s => `
       <div class="signal" data-level="${s.level}">
         <span class="mark"></span>
         <div>
           <p>${esc(s.text)}</p>
-          <div class="row"><span>${esc(s.owner)} · <a href="${esc(s.url)}">открыть</a></span>
+          <div class="row"><span>${esc(s.owner)}${safeUrl(s.url) ? ` · <a href="${esc(safeUrl(s.url))}">открыть</a>` : ''}</span>
           <button class="btn copy" type="button" data-text="${esc(s.reminder)}">Скопировать напоминание</button></div>
         </div>
       </div>`).join('') : '<p class="muted">Сигналов нет — можно идти работать.</p>';
@@ -286,17 +307,18 @@ pre { background: var(--grey-bg); padding: 10px 12px; border-radius: 6px; overfl
 
   // ---------- PR ----------
   function prs() {
-    const list = R.prs.filter(p => !personFilter || p.author === personFilter || p.reviewers.includes(personFilter))
-      .sort((a, b) => b.idle_days - a.idle_days);
+    const list = R.prs.filter(p => !personFilter || p.author === personFilter || (p.reviewers || []).includes(personFilter))
+      .sort((a, b) => (b.idle_days || 0) - (a.idle_days || 0));
     const build = { ok: ['green', 'сборка ок'], failed: ['red', 'сборка упала'], running: ['grey', 'собирается'] };
     if (!list.length) return `<section><h2>Pull request'ы</h2><p class="muted">Открытых PR нет.</p></section>`;
     return `<section><h2>Pull request'ы</h2><div class="panel table-scroll"><table>
       <tr><th>PR</th><th>Чей ход</th><th>Без движения</th><th>Последнее действие</th><th>Сборка</th></tr>
       ${list.map(p => {
-        const turn = p.whose_turn === 'reviewers' ? `ревьюеры: ${p.reviewers.map(esc).join(', ')}` : `автор: ${esc(p.author)}`;
-        const [bc, bt] = build[p.build] || ['grey', p.build];
+        const turn = p.whose_turn === 'reviewers' ? `ревьюеры: ${(p.reviewers || []).map(esc).join(', ')}`
+          : p.whose_turn === 'author' ? `автор: ${esc(p.author)}` : '<span class="muted">неясно</span>';
+        const [bc, bt] = build[p.build] || ['grey', esc(p.build || 'нет данных')];
         return `<tr>
-          <td><a href="${esc(p.url)}">${esc(p.repo)}#${p.id}</a> ${esc(p.title)}<div class="small muted">${esc(p.author)}${p.jira_key ? ` · ${esc(p.jira_key)}` : ' · <span style="color:var(--amber)">нет Jira-ключа</span>'}</div></td>
+          <td>${link(p.url, `${esc(p.repo)}#${esc(p.id)}`)} ${esc(p.title)}<div class="small muted">${esc(p.author)}${p.jira_key ? ` · ${esc(p.jira_key)}` : ' · <span style="color:var(--amber)">нет Jira-ключа</span>'}</div></td>
           <td>${turn}</td>
           <td>${ageBadge(p.idle_days, n => n >= TH.pr_stale_days, n => n >= TH.pr_critical_days)}</td>
           <td class="small muted">${esc(p.last_human_activity)}</td>
@@ -306,38 +328,44 @@ pre { background: var(--grey-bg); padding: 10px 12px; border-radius: 6px; overfl
 
   // ---------- релизы ----------
   function releases() {
-    const rel = R.releases;
-    const item = r => `<div class="release"><div class="head"><span><a href="${esc(r.url)}">${esc(r.key)}</a> ${esc(r.title)}</span><span class="pill ${r.issues.length ? 'amber' : 'grey'}">${esc(r.status)}</span></div>
-      <div class="small muted">План ${fmtDate(r.planned_date)}${r.closed_date !== undefined ? ` · факт ${r.closed_date ? fmtDate(r.closed_date) : '—'}` : ''} · связано: ${r.linked.length ? r.linked.map(esc).join(', ') : '<span style="color:var(--amber)">ничего</span>'}</div>
-      ${r.issues.length ? `<div class="issues">${r.issues.map(esc).join('; ')}</div>` : ''}</div>`;
-    return `<section><h2>Релизы (Release 2.0)</h2><div class="panel">
-      <div class="two"><div><h2 class="small muted" style="font-weight:500">Ближайшие</h2>${rel.upcoming.map(item).join('') || '<p class="muted">Нет запланированных.</p>'}</div>
-      <div><h2 class="small muted" style="font-weight:500">Прошедшие за 30 дней</h2>${rel.past.map(item).join('') || '<p class="muted">Нет.</p>'}</div></div>
-      ${rel.ready_without_release.length ? `<div class="banner" style="margin-top:14px">Готово к выводу, но не в релизе: ${rel.ready_without_release.map(x => `<a href="${esc(x.url)}">${esc(x.key)}</a> ${esc(x.title)} (${esc(x.assignee)})`).join(', ')}</div>` : ''}
+    const rel = R.releases || {};
+    const item = r => {
+      const issues = r.issues || [], linked = r.linked || [];
+      return `<div class="release"><div class="head"><span>${link(r.url, esc(r.key))} ${esc(r.title)}</span><span class="pill ${issues.length ? 'amber' : 'grey'}">${esc(r.status)}</span></div>
+      <div class="small muted">План ${fmtDate(r.planned_date)}${r.closed_date !== undefined ? ` · факт ${r.closed_date ? fmtDate(r.closed_date) : '—'}` : ''} · связано: ${linked.length ? linked.map(esc).join(', ') : '<span style="color:var(--amber)">ничего</span>'}</div>
+      ${issues.length ? `<div class="issues">${issues.map(esc).join('; ')}</div>` : ''}</div>`;
+    };
+    const none = txt => srcDown('jira') ? emptyNote('jira', '') : `<p class="muted">${txt}</p>`;
+    const ready = rel.ready_without_release || [];
+    const type = R.meta.release_type ? ` <span class="muted small">${esc(R.meta.release_type)}</span>` : '';
+    return `<section><h2>Релизы${type}</h2><div class="panel">
+      <div class="two"><div><h2 class="small muted" style="font-weight:500">Ближайшие</h2>${(rel.upcoming || []).map(item).join('') || none('Нет запланированных.')}</div>
+      <div><h2 class="small muted" style="font-weight:500">Прошедшие за 30 дней</h2>${(rel.past || []).map(item).join('') || none('Нет.')}</div></div>
+      ${ready.length ? `<div class="banner" style="margin-top:14px">Готово к выводу, но не в релизе: ${ready.map(x => `${link(x.url, esc(x.key))} ${esc(x.title)} (${esc(x.assignee)})`).join(', ')}</div>` : ''}
     </div></section>`;
   }
 
   // ---------- автотесты ----------
   function tests() {
-    const t = R.tests;
-    const jenkinsDown = R.meta.sources.jenkins !== 'ok';
+    const t = R.tests || {};
+    const jenkinsDown = SOURCES.jenkins === 'unavailable';
     const jobs = jenkinsDown
       ? '<p class="small muted">Состояние джоб Jenkins неизвестно — источник недоступен.</p>'
       : (t.jobs || []).map(j => {
           const [label, color] = JOB_STATE[j.state] || [j.state, 'grey'];
-          const name = j.url ? `<a href="${esc(j.url)}">${esc(j.name)}</a>` : esc(j.name);
-          return `<div>${name} <span class="pill ${color}">${esc(label)}</span>${j.last_run ? ` <span class="small muted">${fmtDate(j.last_run)}</span>` : ''}</div>`;
+          return `<div>${link(j.url, esc(j.name))} <span class="pill ${color}">${esc(label)}</span>${j.last_run ? ` <span class="small muted">${fmtDate(j.last_run)}</span>` : ''}</div>`;
         }).join('') || '<p class="small muted">Джоб нет.</p>';
-    const launches = t.launches.map(l => {
-      const bad = l.failed + l.broken;
-      return `<tr><td><a href="${esc(l.url)}">${esc(l.name)}</a><div class="small muted">${esc(l.project)}</div></td>
-        <td class="num">${l.passed}</td><td class="num" style="color:${bad ? 'var(--red)' : 'inherit'}">${l.failed}</td><td class="num">${l.broken}</td><td class="num muted">${l.skipped}</td>
+    const n = v => (isNum(v) ? v : '—');
+    const launches = (t.launches || []).map(l => {
+      const bad = (l.failed || 0) + (l.broken || 0);
+      return `<tr><td>${link(l.url, esc(l.name))}<div class="small muted">${esc(l.project)}</div></td>
+        <td class="num">${n(l.passed)}</td><td class="num" style="color:${bad ? 'var(--red)' : 'inherit'}">${n(l.failed)}</td><td class="num">${n(l.broken)}</td><td class="num muted">${n(l.skipped)}</td>
         <td><span class="pill ${bad ? 'red' : 'green'}">${bad ? 'красный' : 'зелёный'}</span></td></tr>`;
     }).join('');
-    const fails = t.failures.map(f => `<tr><td><span class="sig">${esc(f.test)}</span></td>
+    const fails = (t.failures || []).map(f => `<tr><td><span class="sig">${esc(f.test)}</span></td>
       <td>${f.is_new ? '<span class="pill red">новое</span>' : ''} ${f.flaky_rate ? `<span class="pill amber">flaky ${Math.round(f.flaky_rate * 100)}%</span>` : ''}</td>
       <td class="small">${f.short_cause ? esc(f.short_cause) : '<span class="muted">не разобрано — запустите /tests</span>'}</td></tr>`).join('');
-    const cov = R.coverage.projects.map(c => {
+    const cov = ((R.coverage || {}).projects || []).map(c => {
       const color = c.pct < c.target ? 'var(--amber)' : 'var(--green)';
       const d = c.delta_prev > 0 ? `+${c.delta_prev}` : c.delta_prev;
       return `<div class="cov"><span>${esc(c.name)}</span>
@@ -345,12 +373,12 @@ pre { background: var(--grey-bg); padding: 10px 12px; border-radius: 6px; overfl
         <span><b>${c.pct}%</b> <span class="small" style="color:${c.delta_prev < 0 ? 'var(--red)' : 'var(--green)'}">${d}</span></span></div>`;
     }).join('');
     return `<section><h2>Автотесты</h2><div class="panel">
-      <div class="table-scroll"><table><tr><th>Последний лонч</th><th class="num">Прошло</th><th class="num">Упало</th><th class="num">Broken</th><th class="num">Пропущено</th><th></th></tr>${launches}</table></div>
+      ${launches ? `<div class="table-scroll"><table><tr><th>Последний лонч</th><th class="num">Прошло</th><th class="num">Упало</th><th class="num">Broken</th><th class="num">Пропущено</th><th></th></tr>${launches}</table></div>` : emptyNote('testops', 'Лончей нет.')}
       <h2 style="margin-top:20px">Падения</h2>
-      <div class="table-scroll"><table>${fails}</table></div>
+      ${fails ? `<div class="table-scroll"><table>${fails}</table></div>` : emptyNote('testops', 'Падений нет.')}
       <p class="small muted">Полный разбор с группировкой по причинам — на вкладке «Тесты»${T ? ` (обновлён ${new Date(T.meta.generated_at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })})` : ''}.</p>
       <div class="two" style="margin-top:12px">
-        <div><h2>Покрытие автотестами</h2>${cov}<p class="small muted">Жёлтая отметка — целевое покрытие.</p></div>
+        <div><h2>Покрытие автотестами</h2>${cov || emptyNote('testops', 'Данных о покрытии нет.')}<p class="small muted">Жёлтая отметка — целевое покрытие.</p></div>
         <div><h2>Джобы Jenkins</h2>${jobs}</div>
       </div>
     </div></section>`;
@@ -367,18 +395,24 @@ pre { background: var(--grey-bg); padding: 10px 12px; border-radius: 6px; overfl
   function testsTab() {
     if (!T) return `<div class="panel"><h2>Разбора падений ещё нет</h2><p>Запустите <b>/tests</b> — агент сгруппирует падения по причинам и сохранит разбор сюда.</p></div>`;
     const cat = { 'окружение': 'grey', 'баг продукта': 'red', 'flaky': 'amber', 'ошибка теста': 'amber', 'данные': 'grey' };
-    const total = T.clusters.reduce((a, c) => a + c.count, 0);
+    const clusters = T.clusters || [], tm = T.meta || {};
+    const total = clusters.reduce((a, c) => a + (c.count || 0), 0);
+    const notes = (tm.notes || []).length ? `<ul class="small muted" style="margin:0 0 12px;padding-left:18px">${tm.notes.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : '';
+    const bug = b => !b ? null
+      : typeof b === 'string' ? `<span class="small muted">${esc(b)}</span>`
+      : link(b.url, esc(b.key || 'баг'));
     return `<div class="panel">
-      <h2>Разбор падений <span class="muted small">${total} ${plural(total, 'падение', 'падения', 'падений')} в ${T.clusters.length} ${plural(T.clusters.length, 'группе', 'группах', 'группах')} · ${T.meta.launches.map(esc).join(', ')} · ${esc(T.meta.generated_by)}</span></h2>
-      ${T.clusters.map((c, i) => `<details class="cluster" ${i === 0 ? 'open' : ''}>
+      <h2>Разбор падений <span class="muted small">${total} ${plural(total, 'падение', 'падения', 'падений')} в ${clusters.length} ${plural(clusters.length, 'группе', 'группах', 'группах')} · ${(tm.launches || []).map(esc).join(', ')} · ${esc(tm.generated_by)}</span></h2>
+      ${notes}
+      ${clusters.map((c, i) => `<details class="cluster" ${i === 0 ? 'open' : ''}>
         <summary><div><span class="pill ${cat[c.category] || 'grey'}">${esc(c.category)}</span> <b>${c.count} ${plural(c.count, 'тест', 'теста', 'тестов')}</b><div class="sig" style="margin-top:4px">${esc(c.signature)}</div></div>
-          <div>${c.jira_bug ? `<a href="${esc(c.jira_bug.url)}">${esc(c.jira_bug.key)}</a>` : c.suggested_bug ? '<span class="pill amber">бага нет</span>' : ''}</div></summary>
+          <div>${bug(c.jira_bug) || (c.suggested_bug ? '<span class="pill amber">бага нет</span>' : '')}</div></summary>
         <div class="body">
           <p style="margin:0 0 8px">${esc(c.cause)}</p>
           ${c.jenkins_log_excerpt ? `<pre>${esc(c.jenkins_log_excerpt)}</pre>` : ''}
           ${c.suggested_bug ? `<div class="bugdraft"><b>Черновик бага:</b> ${esc(c.suggested_bug.title)}<div class="small muted">${esc(c.suggested_bug.description)}</div>
             <button class="btn copy" style="margin-top:8px" type="button" data-text="${esc(c.suggested_bug.title + '\n\n' + c.suggested_bug.description)}">Скопировать черновик</button></div>` : ''}
-          <div class="small" style="margin-top:8px">${c.tests.map(t => `<div><a class="sig" href="${esc(t.url)}">${esc(t.name)}</a></div>`).join('')}</div>
+          <div class="small" style="margin-top:8px">${(c.tests || []).map(t => `<div>${link(t.url, esc(t.name), 'class="sig" ')}</div>`).join('')}</div>
         </div></details>`).join('')}
     </div>`;
   }
