@@ -1,0 +1,82 @@
+# Конфиг AI-техлида. Заполняет тимлид; PO только читает. Токены сюда НЕ пишем — они в .env.
+# Все сроки — в рабочих днях, если не сказано иное.
+
+# Команда. Роль: dev | qa | aqa | analyst. absent — отпуска/отсутствия (агент дописывает после подтверждения).
+team:
+  name: <команда>
+  members:
+    - name: <Имя Фамилия>
+      role: dev
+      jira: <login>
+      bitbucket: <login>
+      absent: [ { from: 2026-11-02, to: 2026-11-13, reason: отпуск } ]
+    - name: <Имя Фамилия>
+      role: qa
+      jira: <login>
+      bitbucket: <login>
+      absent: []
+
+# Календарь. Выходные агент определяет сам; праздники вносит тимлид (даты YYYY-MM-DD).
+calendar:
+  holidays: []
+  # пример: holidays: [2026-11-04, 2026-12-31]
+
+# Jira: проект, доска и сопоставление статусов (названия как в вашем workflow).
+jira:
+  project: <KEY>
+  board_id: <ID>
+  statuses:
+    active: [В работе, Ревью, Тестирование]
+    blocked: [Заблокировано]
+    ready_for_release: [Готово к выводу]
+    done: [Готово, Закрыто]
+
+# Релизы: тип задачи-релиза, окно поиска в днях (вперёд/назад), типы вне расчёта.
+release:
+  issue_type: "Release 2.0"
+  ahead_days: 14
+  back_days: 30
+  exclude_types: [Аналитика, Техдолг]
+
+# Bitbucket: репозитории команды и боты, чьи комментарии не считаются ревью.
+bitbucket:
+  repositories: [ { project: <PROJ>, repo: <slug> } ]
+  bots: [jenkins, sonar]
+
+# Jenkins: джобы; smoke — признак смоук-набора; max_idle_days — сколько дней джоба может не запускаться.
+jenkins:
+  jobs: [ { name: <folder/job>, testops_project: <id>, smoke: false } ]
+  max_idle_days: 2
+
+# TestOps: проекты и целевое покрытие автотестами, %.
+testops:
+  projects: [ { id: <id>, name: <name> } ]
+  coverage_target: 80
+
+# Анализ тестов: top_clusters — сколько кластеров падений показывать;
+# mass_failure_pct — если упало больше X% тестов, гипотеза «окружение».
+tests:
+  top_clusters: 10
+  mass_failure_pct: 30
+
+# Пороги сигналов (рабочие дни, кроме max_wip_per_person и flaky_history_runs).
+thresholds:
+  pr_stale_days: 1
+  pr_critical_days: 2
+  task_stale_days: 2
+  max_wip_per_person: 2
+  flaky_history_runs: 10
+
+# MCP: обязательные серверы, нужные env-переменные и проверка связи (probe);
+# setup_docs — где в Confluence искать инструкции подключения.
+mcp:
+  required:
+    atlassian: { env: [JIRA_TOKEN],      probe: "jira: текущий пользователь" }
+    bitbucket: { env: [BITBUCKET_TOKEN], probe: "список PR первого репо" }
+    jenkins:   { env: [JENKINS_TOKEN],   probe: "статус первой джобы" }
+    testops:   { env: [TESTOPS_TOKEN],   probe: "первый проект" }
+  setup_docs:
+    confluence_space: <SPACE>
+    search: "подключение MCP {name}"
+    pages: { }
+    fallback_url: <ссылка>

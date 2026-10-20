@@ -1,0 +1,24 @@
+{
+  "mcpServers": {
+    "atlassian": {
+      "command": "<команда запуска MCP — см. страницу в Confluence>",
+      "args": [],
+      "env": { "JIRA_TOKEN": "${JIRA_TOKEN}" }
+    },
+    "bitbucket": {
+      "command": "<команда запуска MCP — см. страницу в Confluence>",
+      "args": [],
+      "env": { "BITBUCKET_TOKEN": "${BITBUCKET_TOKEN}" }
+    },
+    "jenkins": {
+      "command": "<команда запуска MCP — см. страницу в Confluence>",
+      "args": [],
+      "env": { "JENKINS_TOKEN": "${JENKINS_TOKEN}" }
+    },
+    "testops": {
+      "command": "<команда запуска MCP — см. страницу в Confluence>",
+      "args": [],
+      "env": { "TESTOPS_TOKEN": "${TESTOPS_TOKEN}" }
+    }
+  }
+}
