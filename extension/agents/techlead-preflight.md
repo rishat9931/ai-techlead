@@ -27,14 +27,16 @@ description: Проверяет готовность рабочей папки A
    `grep -q '^NAME=' .env && echo in-dotenv` — **не читай и не печатай значение**.
    Нет переменной → причина `нет переменной NAME` (если она есть только в `.env` —
    `переменная NAME есть только в .env, не загружена в окружение`).
-4. **Сервер в настройках.** Проверь, что сервер `<name>` объявлен, в таком порядке:
-   1) `./.gigacode/settings.json` → `mcpServers.<name>`;
-   2) `~/.gigacode/settings.json` → `mcpServers.<name>`;
+4. **Сервер в настройках.** Каталог настроек `<cfg>` — по CLI, в котором ты запущен: GigaCode → `.gigacode`,
+   Qwen Code → `.qwen` (не уверен — проверь оба). Проверь, что сервер `<name>` объявлен, в таком порядке:
+   1) `./.gigacode/settings.json` или `./.qwen/settings.json` → `mcpServers.<name>`;
+   2) `~/.gigacode/settings.json` или `~/.qwen/settings.json` → `mcpServers.<name>`;
    3) `gigacode mcp list` (если команды нет — `qwen mcp list`), имя сервера в выводе.
    Содержимое settings.json в контекст **не читай** (там могут быть токены) — проверяй только имена
    серверов командой, которая печатает одни ключи `mcpServers`, например:
-   `node -e "const p=process.argv[1];const j=JSON.parse(require('fs').readFileSync(p,'utf8'));console.log(Object.keys(j.mcpServers||{}).join(' '))" ./.gigacode/settings.json`
-   (для домашнего файла подставь путь `$HOME/.gigacode/settings.json`; файла нет или JSON битый — переходи к следующему варианту).
+   `node -e "try{const j=JSON.parse(require('fs').readFileSync(process.argv[1],'utf8'));console.log(Object.keys(j.mcpServers||{}).join(' '))}catch(e){console.log('unreadable')}" ./<cfg>/settings.json 2>/dev/null`
+   (для домашнего файла подставь путь `$HOME/<cfg>/settings.json`). Вывод `unreadable` или пустой (файла нет, JSON битый) —
+   переходи к следующему варианту; текст ошибки и содержимое файла не выводи.
    Нигде не найден → причина `не настроен (нет в settings.json)`.
 5. **Пробный вызов.** Если переменные заданы и сервер объявлен — найди инструменты сервера
    (имена вида `mcp__<name>__<tool>`), выбери один дешёвый инструмент только для чтения

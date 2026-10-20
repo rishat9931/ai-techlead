@@ -25,13 +25,17 @@ description: Подготовить рабочую папку команды д�
 3. **Файлы команды** — для каждого: есть → «уже есть, пропущен»; нет → создать.
    - `techlead.yaml` ← `cp .techlead/templates/techlead.yaml techlead.yaml`.
    - `.gigacode/settings.json` ← `mkdir -p .gigacode && cp .techlead/templates/settings.json .gigacode/settings.json`.
+     Если ты запущен в Qwen Code, а не в GigaCode, — тот же шаг с `.qwen/settings.json` (`mkdir -p .qwen`); не уверен,
+     в каком CLI работаешь, — спроси. Ниже `.gigacode/` читай как выбранный каталог.
      Если файл уже есть — **не читай его целиком** (там могут быть токены). Выведи только имена серверов:
-     `node -e "const j=JSON.parse(require('fs').readFileSync('.gigacode/settings.json','utf8'));console.log(Object.keys(j.mcpServers||{}).join(' '))"`.
+     `node -e "try{const j=JSON.parse(require('fs').readFileSync('.gigacode/settings.json','utf8'));console.log(Object.keys(j.mcpServers||{}).join(' '))}catch(e){console.log('unreadable')}" 2>/dev/null`.
      Сравни с ключами `mcpServers` шаблона (`atlassian`, `bitbucket`, `jenkins`, `testops`). Каких-то нет —
      предложи дописать **только недостающие** блоки из шаблона (в них только ссылки `${VAR}`), покажи их и
      выполни слияние node-скриптом, не трогающим существующие ключи, **только после «да»**.
    - `.gitignore` ← дописать недостающие строки из `.techlead/templates/gitignore` (`reports/raw/`,
-     `reports/latest.js`, `.env`): для каждой строки `grep -qxF '<строка>' .gitignore || echo '<строка>' >> .gitignore`
+     `reports/latest.js`, `.env`): сначала добей перевод строки в конце файла —
+     `[ -s .gitignore ] && [ "$(tail -c1 .gitignore)" != "" ] && echo >> .gitignore`, затем для каждой строки
+     `grep -qxF '<строка>' .gitignore 2>/dev/null || echo '<строка>' >> .gitignore`
      (файла нет — создаётся). Существующие строки не трогай.
    - `.env.example` ← `cp .techlead/templates/env.example .env.example`.
    - `dashboard.html` ← `cp .techlead/dashboard.html dashboard.html` (страница грузит `reports/latest.js`).

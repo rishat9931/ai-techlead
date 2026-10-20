@@ -20,7 +20,7 @@ description: Строит снимок стендапа reports/<дата>.json 
 
 ## Входные файлы
 - `techlead.yaml`: `team.name`, `team.members[]` `{name, role, jira, bitbucket, absent[{from,to,reason}]}`,
-  `calendar.holidays`, `jira.statuses`, `release.exclude_types`, `jenkins.jobs[]` `{name, testops_project, smoke}`,
+  `calendar.holidays`, `jira.statuses`, `release.issue_type`, `release.exclude_types`, `jenkins.jobs[]` `{name, testops_project, smoke}`,
   `jenkins.max_idle_days`, `testops.projects[]`, `testops.coverage_target`, `thresholds`
   (`pr_stale_days`, `pr_critical_days`, `task_stale_days`, `max_wip_per_person`, `flaky_history_runs`).
 - `reports/raw/<дата>/jira.json` — `data: {sprint, issues[], releases[], releases_undated[], ready_without_release[], unknown_people[], truncated?}`;
@@ -47,7 +47,7 @@ description: Строит снимок стендапа reports/<дата>.json 
    Для каждого недоступного добавь в `meta.setup_hints[]` `{name, reason, doc_url}` из входа оркестратора
    (reason — из входа или из поля `error` raw-файла; `doc_url` — только если передан). Разделы недоступного источника
    оставь пустыми (`[]`, `{}`), ничего не достраивай по догадкам. Остальные поля `meta`: `generated_at` (ISO 8601 сейчас,
-   с часовым поясом), `generated_by`, `team` = `team.name`, `tests_report` = `"tests-<дата>.json"` если файл есть, иначе `null`,
+   с часовым поясом), `generated_by`, `team` = `team.name`, `release_type` = `release.issue_type` (нет ключа — поле не пиши), `tests_report` = `"tests-<дата>.json"` если файл есть, иначе `null`,
    `thresholds` = `{pr_stale_days, pr_critical_days, task_stale_days}` из конфига, `questions` = `[]` (заполняется в шаге 7).
 2. **Люди.** Сопоставь логины: Jira `assignee` → `team.members[].jira`, Bitbucket `author`/`reviewers` → `team.members[].bitbucket`.
    Везде в отчёте пиши **имя** (`name` из конфига); логин не из конфига — пиши сам логин.
