@@ -60,3 +60,11 @@ test('контракты сборщиков: in_sprint в jira, job в testops',
   assert.match(body('jira-collector'), /\bin_sprint\b/);
   assert.match(body('testops-collector'), /launches\[\]`: `\{project, job,/);
 });
+
+test('аналитики: техлид — workdays.mjs, validate.mjs, meta.questions; тесты — схема и top_clusters', () => {
+  const body = (n) => parse(readFileSync(join(AGENTS, `${n}.md`), 'utf8')).body;
+  const a = body('techlead-analyst');
+  for (const s of ['workdays.mjs', 'validate.mjs', 'meta.questions']) assert.ok(a.includes(s), s);
+  const t = body('tests-analyst');
+  for (const s of ['tests-report.schema.json', 'top_clusters']) assert.ok(t.includes(s), s);
+});
