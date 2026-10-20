@@ -1,58 +1,71 @@
 # Спецификация: AI-техлид для GigaCode CLI (субагенты) — дизайн
 
+Ревизия 2 (после грилинга 2026-10-20).
+
 ## Context
-Техлиду/PO нужен агент, который контролирует команду: запущен ли спринт, есть ли задачи у
-каждого, PR без движения >1 дня, Релиз 2.0 / баги / УКЗ / МПР, автотесты (Jenkins, TestOps),
-покрытие — и выдаёт **одну локальную HTML-страницу для стендапа** с сигналами и
-рекомендациями; автотестерам — быстрый разбор падений. Сервера нет: запускает техлид/PO у
-себя в **GigaCode CLI** (по устройству как Gemini/Qwen CLI) из рабочей папки команды, где
-лежат конфиг и подключённые MCP (Atlassian, Bitbucket, Jenkins, TestOps). Если MCP не
-подключён — агент ищет инструкцию по подключению в Confluence.
+Техлиду/PO нужен агент, который контролирует команду: запущен ли спринт, у всех ли есть
+работа, PR без движения >1 дня, гигиена релизных тикетов Release 2.0, автотесты и покрытие —
+и выдаёт **одну локальную HTML-страницу для стендапа** с сигналами и рекомендациями;
+автотестерам — быстрый разбор падений. Сервера нет: запускает техлид/PO у себя в
+**GigaCode CLI** (устроен как Qwen Code) из рабочей папки команды, где лежат конфиг и
+подключённые MCP (Atlassian, Bitbucket, Jenkins, TestOps). Если MCP не подключён — агент
+ищет инструкцию по подключению в Confluence.
 
-Согласовано в брейншторме: упаковка — **субагенты + субагенты-сборщики**, оркестратор —
-команда `/standup` (субагенты не вызывают субагентов); подход «шаблон + JSON-снимки»; только
-чтение внешних систем. Проект `/Users/alex/work/ai-techlead` пуст — это исходники пакета.
-
-## Шаги после одобрения
-1. `git init` в `/Users/alex/work/ai-techlead`, сохранить дизайн в
-   `docs/superpowers/specs/2026-10-20-ai-techlead-design.md`, коммит; пользователь ревьюит.
-2. `superpowers:writing-plans` → план реализации → выбор способа исполнения.
+## Ключевые решения
+| # | Решение |
+|---|---------|
+| 1 | Упаковка — субагенты (как в Qwen Code: `~/.gigacode/agents/*.md`), оркестратор — команда `/standup`; субагент не вызывает субагентов |
+| 2 | «Занят» = есть задача в `jira.statuses.active`, где он исполнитель, **или** открытый PR, где он автор/ревьюер |
+| 3 | «Движение» PR = только действия людей (коммит автора, коммент, апрув, needs work); боты из `bitbucket.bots` и CI игнорируются; сигнал указывает **чей ход** (ревьюеры / автор) |
+| 4 | Выходные агент определяет сам; праздники и отсутствия ведёт тимлид в `techlead.yaml`; при отклонении без объяснения агент **спрашивает** «нет ли отпуска/праздника?» и после «да» дописывает в конфиг |
+| 5 | Рабочая папка — git-репо команды в Bitbucket: `pull` перед запуском, после — предложить `commit`+`push` (с подтверждением); один снимок в день (перезапись); `raw/`, `latest.js`, `.env` — в `.gitignore` |
+| 6 | `/standup` не анализирует причины падений — только счётчики, список, «новое»/flaky; анализ — в `/tests` |
+| 7 | `/tests` кластеризует падения по сигнатуре, пишет `reports/tests-YYYY-MM-DD.json` (коммитится); вкладка «Тесты» его показывает; `/standup` подтягивает краткую причину, если сегодняшний разбор есть |
+| 8 | Release 2.0 — **тип задачи** Jira (тикет на вывод в пром). Контроль — гигиена: тикеты заведены, ведутся (статус двигается, дата не просрочена при открытом тикете), есть связи с задачами/сторями; ближайшие и прошедшие релизы |
+| 9 | Задача в `jira.statuses.ready_for_release` без связи с Release 2.0 — 🟡 (кроме `release.exclude_types`) |
+| 10 | УКЗ/МПР — обычные задачи (загрузка людей, «без движения»), без отдельного блока |
+| 11 | Тесты: **TestOps** — результаты, история, flaky, стектрейсы, покрытие; **Jenkins** — состояние джоб (упала до тестов, зависла, давно не запускалась) и консольный лог для `/tests`; маппинг джоба ↔ проект TestOps в конфиге |
+| 12 | Покрытие = доля автоматизированных кейсов от всех активных по проекту TestOps, цель `coverage_target`, динамика по снимкам |
+| 13 | Только чтение внешних систем. У каждого сигнала — «скопировать напоминание» (готовый текст: кому, что, ссылка) |
+| 14 | Токены — в переменных окружения (`~/.zshrc` или `.env` в `.gitignore`); `settings.json` коммитится только со ссылками `$VAR`; preflight проверяет переменные и сканирует коммитимые файлы на секреты перед commit |
 
 ## ⚠ Допущения о GigaCode (сверить при установке)
-Каталоги `~/.gigacode/agents/*.md` (frontmatter `name`, `description`, `tools`),
+`~/.gigacode/agents/*.md` (frontmatter `name`, `description`, `tools`),
 `~/.gigacode/commands/*.toml` (`description`, `prompt`, `{{args}}`, `@{file}`, `!{cmd}`),
-проектный `.gigacode/settings.json` с `mcpServers`; субагент не может вызвать субагента;
-субагентам доступны MCP-инструменты сессии. Всё GigaCode-специфичное изолировано в
-`install/` и frontmatter — промпты переносимы (отладка возможна в Claude Code).
+проектный `.gigacode/settings.json` с `mcpServers` и подстановкой `$VAR`/`${VAR}`; субагенты
+видят MCP сессии. GigaCode-специфика изолирована во frontmatter, `.toml` и `install/`.
 
 ## Структура
 ```
 ИСХОДНИКИ ПАКЕТА (этот репо)            → УСТАНОВКА в ~/.gigacode/
 agents/
-  techlead-preflight.md                  проверка папки, конфига, MCP; инструкции из Confluence
-  jira-collector.md                      спринт, люди, Релиз 2.0, баги, УКЗ/МПР → raw/jira.json
+  techlead-preflight.md                  папка, конфиг, env, MCP; инструкции из Confluence
+  jira-collector.md                      спринт, люди, Release 2.0, ready-без-релиза → raw/jira.json
   bitbucket-collector.md                 PR по репо из конфига → raw/bitbucket.json
-  jenkins-collector.md                   прогоны, падения, логи, история → raw/jenkins.json
-  testops-collector.md                   лончи, история, покрытие → raw/testops.json
-  techlead-analyst.md                    raw + прошлый снимок → итоговый отчёт по схеме
+  jenkins-collector.md                   состояние джоб → raw/jenkins.json
+  testops-collector.md                   лончи, падения, flaky, покрытие → raw/testops.json
+  techlead-analyst.md                    raw + прошлый снимок → отчёт
+  tests-analyst.md                       падения → кластеры, причины, черновики багов
 commands/
   standup.toml                           полный цикл
-  tests.toml                             /tests [джоба]: preflight(jenkins,testops) → 2 сборщика → разбор в чат
-  pr.toml                                /pr: preflight(bitbucket) → сборщик → зависшие PR в чат
-  techlead-init.toml                     создать techlead.yaml, .gigacode/settings.json, dashboard.html в папке
+  tests.toml                             /tests [джоба]
+  pr.toml                                /pr — зависшие PR в чат
+  techlead-init.toml                     создать techlead.yaml, settings.json, .gitignore, .env.example, dashboard.html
 ai-techlead/
-  dashboard.html                         шаблон (vanilla JS, без сети, читает reports/latest.js)
-  report.schema.json, raw.schema.json    контракты
-  templates/techlead.yaml, settings.json
-  fixtures/example-report.json           для проверки шаблона
-install/install.sh                       копирует agents/, commands/, ai-techlead/ в ~/.gigacode/
+  dashboard.html                         шаблон (vanilla JS, без сети)
+  report.schema.json, tests-report.schema.json, raw.schema.json
+  templates/techlead.yaml, settings.json, gitignore, env.example
+  fixtures/example-report.json, example-tests-report.json
+install/install.sh
 docs/superpowers/specs/…
 
-РАБОЧАЯ ПАПКА КОМАНДЫ (cwd запуска)
+РАБОЧАЯ ПАПКА КОМАНДЫ = git-репо в Bitbucket
 techlead.yaml
-.gigacode/settings.json                  mcpServers
+.gigacode/settings.json                  mcpServers, токены через $VAR
+.env (в .gitignore), .env.example
 dashboard.html
-reports/raw/YYYY-MM-DD/*.json, reports/YYYY-MM-DD.json, reports/latest.js
+reports/YYYY-MM-DD.json, reports/tests-YYYY-MM-DD.json      ← в git
+reports/raw/…, reports/latest.js                            ← .gitignore
 ```
 
 ## techlead.yaml
@@ -60,112 +73,152 @@ reports/raw/YYYY-MM-DD/*.json, reports/YYYY-MM-DD.json, reports/latest.js
 team:
   name: <команда>
   members:
-    - { name: <Имя Фамилия>, role: dev, jira: <login>, bitbucket: <login> }  # dev|qa|aqa|analyst
-jira:   { project: <KEY>, board_id: <ID>, release: "Релиз 2.0", issue_types: [Bug, Story, Task, УКЗ, МПР] }
+    - name: <Имя Фамилия>
+      role: dev                       # dev|qa|aqa|analyst
+      jira: <login>
+      bitbucket: <login>
+      absent: [ { from: 2026-11-02, to: 2026-11-13, reason: отпуск } ]
+calendar:
+  holidays: [2026-11-04, 2026-12-31]  # заполняет тимлид
+jira:
+  project: <KEY>
+  board_id: <ID>
+  statuses:
+    active: [В работе, Ревью, Тестирование]
+    blocked: [Заблокировано]
+    ready_for_release: [Готово к выводу]
+    done: [Готово, Закрыто]
+release:
+  issue_type: "Release 2.0"
+  ahead_days: 14
+  back_days: 30
+  exclude_types: [Аналитика, Техдолг]
 bitbucket:
   repositories: [ { project: <PROJ>, repo: <slug> } ]
-jenkins: { jobs: [<folder/job>], smoke_jobs: [<folder/smoke>] }
-testops: { projects: [ { id: <id>, name: <name> } ], coverage_target: 80 }
-thresholds: { pr_stale_days: 1, pr_critical_days: 2, task_stale_days: 2, max_wip_per_person: 2, flaky_history_runs: 10 }
+  bots: [jenkins, sonar]
+jenkins:
+  jobs: [ { name: <folder/job>, testops_project: <id>, smoke: false } ]
+  max_idle_days: 2                    # джоба давно не запускалась
+testops:
+  projects: [ { id: <id>, name: <name> } ]
+  coverage_target: 80
+tests:
+  top_clusters: 10
+  mass_failure_pct: 30                # >X% упало → гипотеза «окружение»
+thresholds:
+  pr_stale_days: 1
+  pr_critical_days: 2
+  task_stale_days: 2
+  max_wip_per_person: 2
+  flaky_history_runs: 10
 mcp:
   required:
-    atlassian: { probe: "jira: текущий пользователь" }
-    bitbucket: { probe: "список PR первого репо" }
-    jenkins:   { probe: "статус первой джобы" }
-    testops:   { probe: "первый проект" }
+    atlassian: { env: [JIRA_TOKEN],      probe: "jira: текущий пользователь" }
+    bitbucket: { env: [BITBUCKET_TOKEN], probe: "список PR первого репо" }
+    jenkins:   { env: [JENKINS_TOKEN],   probe: "статус первой джобы" }
+    testops:   { env: [TESTOPS_TOKEN],   probe: "первый проект" }
   setup_docs:
     confluence_space: <SPACE>
     search: "подключение MCP {name}"
-    pages: { }                    # опционально: name → pageId
+    pages: { }
     fallback_url: <ссылка>
 ```
 
-## Поток /standup (оркестратор = команда)
-1. **techlead-preflight** → вердикт `{ok_sources, missing:[{name, reason, setup_steps, settings_snippet, doc_url}]}`.
-   - Нет `techlead.yaml` в cwd → стоп, предложить `/techlead-init`.
-   - Невалидный конфиг → стоп со списком полей.
-   - По каждому MCP: есть ли в `.gigacode/settings.json` + ответ на `probe` → `ok | не настроен | не отвечает (auth/timeout)`.
-   - Не подключён, Atlassian ok → Confluence: `setup_docs.pages[name]`, иначе поиск `search` в
-     `confluence_space` → шаги + фрагмент `settings.json` + ссылка. В settings.json не пишет без «да».
-   - Atlassian не подключён → `fallback_url` + шаблон блока atlassian из пакета → стоп.
-   - Без Bitbucket/Jenkins/TestOps → спросить «продолжить без них?»; да → источник помечается
-     недоступным со ссылкой на инструкцию.
-2. **Сборщики параллельно** (только ok-источники). Каждый: только свой MCP + запись в
-   `reports/raw/<дата>/<source>.json` по `raw.schema.json`; возвращает оркестратору 3–5 строк, не дамп.
-   Ошибка → `{"error": …}` в raw-файле.
-3. **techlead-analyst**: читает config, raw, предыдущий `reports/*.json` → дельты, сигналы,
-   анализ падений, рекомендации → `reports/<дата>.json` по `report.schema.json`.
-4. Оркестратор: `reports/latest.js` (`window.REPORT = …;`), открыть `dashboard.html`, 3 строки
-   в чат (статус, главный риск, первое действие).
+## Поток /standup
+0. `git pull` (ошибка/конфликт → предупредить, продолжить локально).
+1. **techlead-preflight** → `{ok_sources, missing:[{name, reason, setup_steps, settings_snippet, doc_url}]}`:
+   - нет `techlead.yaml` → стоп, предложить `/techlead-init`; невалидный → стоп со списком полей;
+   - по каждому MCP: env-переменные заданы? сервер в settings.json? `probe` отвечает? →
+     `ok | нет переменной | не настроен | не отвечает (auth/timeout)`;
+   - не подключён и Atlassian ok → Confluence (`pages[name]`, иначе поиск) → шаги, фрагмент
+     settings.json, ссылка; без «да» ничего не пишет;
+   - нет Atlassian → `fallback_url` + шаблон блока → стоп;
+   - нет Bitbucket/Jenkins/TestOps → «продолжить без них?»; да → источник `unavailable` + ссылка.
+2. **Сборщики параллельно** (ok-источники): свой MCP + запись `reports/raw/<дата>/<source>.json`;
+   оркестратору 3–5 строк. Ошибка → `{"error": …}`.
+3. **techlead-analyst** → `reports/<дата>.json`; подтягивает `reports/tests-<дата>.json`, если есть.
+4. **Вопросы по отклонениям**: для сигналов «нет задач» / «без движения» по людям без
+   `absent` — один пакетный вопрос «у кого отпуск/больничный, был ли праздник?»; ответы →
+   (после «да») в `techlead.yaml`, сигналы пересчитываются (человек → серый «отсутствует до …»,
+   его PR/задачи → «нужен заменяющий»).
+5. `reports/latest.js`, открыть `dashboard.html`, 3 строки в чат.
+6. Сканирование коммитимых файлов на токены → предложить `commit` + `push`.
+
+## Поток /tests [джоба]
+preflight (testops, jenkins) → testops-collector + jenkins-collector (с консольными логами
+упавших/сломанных джоб) → **tests-analyst**: кластеры по сигнатуре (тип исключения,
+нормализованное сообщение, верхний фрейм); упало >`mass_failure_pct`% → гипотеза
+«окружение»; разбор top-`top_clusters` кластеров по представителю: категория
+`баг продукта | ошибка теста | окружение | данные | flaky`, причина 1–2 предложения, есть ли
+баг в Jira, черновик бага → `reports/tests-<дата>.json` → краткий итог в чат → предложить commit.
 
 ## Контракт отчёта (report.schema.json)
 ```jsonc
 {
-  "meta":    { "generated_at","generated_by","sources":{"jira":"ok","jenkins":"unavailable","…":"…"},"setup_hints":[{name,doc_url}] },
+  "meta":    { "generated_at","generated_by","sources":{"jira":"ok","jenkins":"unavailable"},"setup_hints":[{name,doc_url}],"tests_report":"tests-2026-10-20.json|null" },
   "status":  { "level":"red|yellow|green","summary" },
   "sprint":  { "name","state","start","end","day","days_total","done_pct","sp_done","sp_total","scope_added":[],"risk" },
-  "people":  [ { "name","role","in_progress":[{key,title,status,days_no_move,url}],"prs":[],"blockers":[],"flags":[] } ],
-  "signals": [ { "level","category":"sprint|people|pr|release|tests|coverage","text","owner","age_days","url" } ],
-  "prs":     [ { "repo","id","title","author","reviewers","age_days","idle_days","last_activity","build","jira_key","url" } ],
-  "release": { "name","done","in_progress","todo","blockers":[],"bugs":{"critical","new_24h","unassigned"},"ukz_mpr":[] },
-  "tests":   { "jobs":[{name,status,passed,failed,skipped,url,source}],
-               "failures":[{test,job,first_failed,is_new,flaky_rate,category,cause,jira_bug,suggested_bug,url}] },
-  "coverage":{ "projects":[{name,pct,target,delta_prev_sprint}],"release_features_without_tests":[] },
+  "people":  [ { "name","role","absent":{to,reason}|null,"active":[{key,title,status,days_no_move,url}],"prs":[],"blockers":[],"flags":[] } ],
+  "signals": [ { "id","level","category":"sprint|people|pr|release|tests|coverage","text","owner","age_days","url","reminder" } ],
+  "prs":     [ { "repo","id","title","author","reviewers","age_days","idle_days","whose_turn":"reviewers|author","last_human_activity","build","jira_key","url" } ],
+  "releases":{ "upcoming":[{key,title,planned_date,status,days_no_move,linked:[key],issues:[]}],
+               "past":[{key,title,planned_date,closed_date,status,linked:[key],issues:[]}],
+               "ready_without_release":[{key,title,assignee,url}] },
+  "tests":   { "jobs":[{name,state:"ok|failed_before_tests|hung|idle",last_run,url}],
+               "launches":[{project,name,passed,failed,broken,skipped,url}],
+               "failures":[{test,project,is_new,flaky_rate,short_cause|null,url}] },
+  "coverage":{ "projects":[{name,automated,total,pct,target,delta_prev}] },
   "recommendations":[ { "who","what","when","why" } ]
 }
 ```
+`tests-report.schema.json`: `{meta, clusters:[{signature,category,cause,tests:[{name,url}],count,jira_bug|null,suggested_bug:{title,description}|null,jenkins_log_excerpt}]}`.
 
 ## Страница
-Статус-строка (🟢/🟡/🔴, спринт, день X/Y, %, риск, источники) → «Требует внимания» →
-«Кто чем занят» (Сотрудник | В работе | Движение | PR | Проблема) → PR | Релиз 2.0 →
-Автотесты + покрытие → Рекомендации. Клик — детали (стектрейс/причина, история PR); фильтр по
-сотруднику; вкладка «Тесты»; плашка недоступного источника со ссылкой на инструкцию; пустые
+Статус-строка (🟢/🟡/🔴, спринт, день X/Y, %, риск, источники) → «Требует внимания» (у каждого
+сигнала «скопировать напоминание») → «Кто чем занят» (Сотрудник | В работе | Движение | PR |
+Проблема; отсутствующие — серым) → PR (чей ход) | Релизы (ближайшие, прошедшие, готовое без
+релиза) → Автотесты (джобы, лончи, падения, покрытие) → Рекомендации. Вкладка «Тесты» —
+кластеры из `tests-*.json`. Фильтр по сотруднику; плашка недоступного источника; пустые
 состояния.
 
-## Сигналы (пороги из thresholds, рабочие дни)
-- 🔴 нет активного спринта; блокер Релиза 2.0; красный smoke; сотрудник без задач; PR без
-  движения > `pr_critical_days`.
-- 🟡 PR без движения > `pr_stale_days`; задача без движения > `task_stale_days`; WIP >
-  `max_wip_per_person`; новый flaky; покрытие ниже цели или упало; задача без PR / PR без
-  Jira-ключа; риск не закрыть спринт; человек в PR/задачах не из конфига.
+## Сигналы (рабочие дни = без выходных, `calendar.holidays` и `absent` человека)
+- 🔴 нет активного спринта; красный smoke; джоба smoke упала до тестов/зависла; присутствующий
+  сотрудник без работы; PR без движения > `pr_critical_days`.
+- 🟡 PR без движения > `pr_stale_days`; задача (вкл. УКЗ/МПР) без движения > `task_stale_days`;
+  WIP > `max_wip_per_person`; Release 2.0 без связей / без движения / дата прошла, тикет открыт;
+  задача в `ready_for_release` без Release 2.0; новый flaky; покрытие ниже цели или упало;
+  джоба не запускалась > `max_idle_days`; задача без PR / PR без Jira-ключа; риск не закрыть
+  спринт; человек в PR/задачах не из конфига; у отсутствующего есть открытые PR/задачи.
 
-## Промпты субагентов (ядро содержания)
-**Общее для всех:** только чтение; без выдумывания данных; ссылки на всё; по-русски, кратко;
-писать только в `reports/`.
+## Промпты субагентов
+**Общее:** только чтение внешних систем; без выдумывания; ссылки на всё; по-русски, кратко;
+писать только в `reports/` (и в `techlead.yaml` — только по подтверждению, через оркестратора).
 
-**techlead-preflight** — tools: чтение файлов, Atlassian MCP (Confluence-поиск), пробные
-вызовы всех MCP. Выход — вердикт (см. поток, шаг 1).
-
-**jira-collector** — tools: Atlassian MCP. Активный спринт доски (даты, SP, добавленное после
-старта); по каждому члену команды — задачи в работе, дни без смены статуса (changelog),
-блокеры; задачи без исполнителя/оценки; fixVersion «Релиз 2.0» — прогресс, блокеры; баги
-(критичные, за 24 ч, без исполнителя, просроченные); УКЗ/МПР — статусы, сроки.
-
-**bitbucket-collector** — tools: Bitbucket MCP. Только `bitbucket.repositories`. Открытые PR:
-автор, ревьюеры, created, последняя активность (коммит/коммент/апрув), статус сборки,
-конфликты, запрошенные изменения, Jira-ключ из ветки/названия.
-
-**jenkins-collector** — tools: Jenkins MCP. Для `jobs` + `smoke_jobs`: последний билд, счётчики,
-упавшие тесты со стектрейсом (обрезать до сути), история последних `flaky_history_runs` по каждому
-упавшему тесту, первый билд падения.
-
-**testops-collector** — tools: TestOps MCP. Последние лончи, результаты, история тест-кейсов,
-% покрытия/автоматизации по проектам, кейсы/фичи Релиза 2.0 без автотестов.
-
-**techlead-analyst** — tools: чтение/запись файлов. Роль техлида: не пересказ, а выводы.
-Сопоставление людей по логинам, PR↔задача, падение Jenkins↔лонч TestOps↔баг Jira; дельты с
-прошлым снимком; сигналы; классификация падений `баг продукта | ошибка теста | окружение |
-данные | flaky` + причина 1–2 предложения + черновик бага, если его нет; паттерны (узкие места
-ревью/QA, нестабильное окружение, повторяющиеся падения, перегрузка/недогрузка, риски релиза);
-3–5 рекомендаций «кто → что → когда → почему». Мало данных — так и сказать.
+- **techlead-preflight** — чтение файлов, env, Atlassian (Confluence-поиск), пробы всех MCP.
+- **jira-collector** — активный спринт (даты, SP, scope_added); по людям — задачи в `active`/
+  `blocked`, дни без смены статуса (changelog); задачи без исполнителя/оценки; Release 2.0 в
+  окнах `ahead_days`/`back_days` — статус, дата, связи, движение; задачи в `ready_for_release`
+  без связи с Release 2.0.
+- **bitbucket-collector** — открытые PR по репо из конфига; активность без `bots`; чей ход;
+  сборка, конфликты, Jira-ключ.
+- **jenkins-collector** — по `jenkins.jobs`: последний билд, состояние; в режиме `/tests` —
+  консольный лог (обрезанный) для упавших до тестов/зависших.
+- **testops-collector** — последние лончи по проектам, упавшие тесты со стектрейсами, история
+  `flaky_history_runs`, automated/total.
+- **techlead-analyst** — сопоставление людей, PR↔задача; рабочие дни; дельты; сигналы +
+  `reminder`; паттерны; 3–5 рекомендаций «кто → что → когда → почему».
+- **tests-analyst** — см. поток /tests.
 
 ## Проверка
-- `dashboard.html` на `fixtures/example-report.json`: все блоки, пустые состояния, плашка источника.
-- Отчёт и raw валидны по схемам.
-- Preflight: (а) нет `techlead.yaml`; (б) убран bitbucket из settings → находит инструкцию в
-  Confluence; (в) нет atlassian → fallback и стоп.
-- Смоук в GigaCode: `/standup` на реальных MCP, ручная сверка 2–3 сигналов с Jira/Bitbucket.
+- `dashboard.html` на фикстурах: все блоки, пустые состояния, отсутствующие, плашка источника,
+  вкладка «Тесты», копирование напоминания.
+- Отчёты и raw валидны по схемам.
+- Расчёт рабочих дней: выходные, праздник, отпуск.
+- Preflight: нет `techlead.yaml`; нет env-переменной; убран bitbucket → инструкция из
+  Confluence; нет atlassian → стоп.
+- Скан секретов: токен в коммитимом файле → коммит не предлагается.
+- Смоук в GigaCode: `/standup` и `/tests` на реальных MCP, ручная сверка 2–3 сигналов.
 
 ## Вне скоупа
-Автоисправление тестов через PR (следующий этап), уведомления, сервер/cron, автозапись в
-settings.json без подтверждения.
+Автоисправление тестов через PR; запись в Jira/Bitbucket; уведомления; сервер/cron;
+покрытие сторей автотестами; глубокая аналитика релизов (сроки, откаты).
