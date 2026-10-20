@@ -1,0 +1,6 @@
+{
+  "name": "ai-techlead",
+  "version": "0.1.0",
+  "agents": "agents",
+  "commands": "commands"
+}
