@@ -1,0 +1,868 @@
+{
+  "meta": {
+    "generated_at": "2026-10-21T19:05:00+03:00",
+    "generated_by": "Альмухаметов Ришат Ракитович",
+    "team": "Премиальные решения. Core",
+    "release_type": "Release 2.0",
+    "sources": {
+      "jira": "partial",
+      "bitbucket": "ok",
+      "jenkins": "ok",
+      "testops": "unavailable"
+    },
+    "setup_hints": [
+      {
+        "name": "testops",
+        "reason": "не отвечает: fetch failed — MCP-сервер testops недоступен, лончи, падения и покрытие не собраны"
+      }
+    ],
+    "tests_report": null,
+    "thresholds": {
+      "pr_stale_days": 1,
+      "pr_critical_days": 2,
+      "task_stale_days": 2
+    },
+    "questions": [
+      {
+        "person": "А. Артем",
+        "text": "У А. Артем нет задач в работе — это отпуск/больничный или праздник?"
+      },
+      {
+        "person": "С. Артём",
+        "text": "У С. Артём нет задач в работе — это отпуск/больничный или праздник?"
+      }
+    ]
+  },
+  "status": {
+    "level": "red",
+    "summary": "Без работы двое (А. Артем и С. Артём — ни активных задач, ни открытых PR), у трёх человек перегруз: П. Владислав и Н. Иван по 4 задачи, Х. Наталья и Ш. Алексей по 3 при пороге 2; релиз «ФП Маркирование 3.9.0» (PRCORE-4577) стоит в «Формирование» 5 рабочих дней, 5 задач «Реализовано» не прилинкованы ни к одному Release 2.0"
+  },
+  "sprint": {
+    "name": "Q4'26 | 2",
+    "state": "active",
+    "goal": null,
+    "start": "2026-10-16T15:52:00.000+03:00",
+    "end": "2026-10-30T15:52:00.000+03:00",
+    "day": 4,
+    "days_total": 11,
+    "done_pct": 0,
+    "sp_done": 0,
+    "sp_total": 2,
+    "scope_added": [
+      {
+        "key": "PRCORE-4591",
+        "title": "Настройка миграции на инструмент Platform V",
+        "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4591"
+      },
+      {
+        "key": "PRCORE-4592",
+        "title": "[DevOps] Миграция модуля Карева на DropApp",
+        "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4592"
+      },
+      {
+        "key": "PRCORE-4595",
+        "title": "[ФП Маркирование | Аналитика | МЕТА]  Завести ИВ под взаимодействия внутри АС",
+        "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4595"
+      },
+      {
+        "key": "PRCORE-4596",
+        "title": "Корректировка автотестов Создание исходящего лида",
+        "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4596"
+      },
+      {
+        "key": "PRCORE-4598",
+        "title": "[PL | SDD | Справка ЛПР] Изменение региона",
+        "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4598"
+      },
+      {
+        "key": "PRCORE-4599",
+        "title": "Корректировка автотестов PeriodFilterLeadTest Список лидов",
+        "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4599"
+      },
+      {
+        "key": "PRCORE-4604",
+        "title": "[ППРБ | КО | mailling] SDD генерация контента и мастерспеки",
+        "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4604"
+      },
+      {
+        "key": "PRCORE-4605",
+        "title": "[PL | Активности на ДО] реализация core-виджет",
+        "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4605"
+      }
+    ],
+    "risk": null
+  },
+  "people": [
+    {
+      "name": "А. Артем",
+      "role": "analyst",
+      "absent": null,
+      "active": [],
+      "prs": [],
+      "blockers": [],
+      "flags": [
+        "нет задач в работе"
+      ]
+    },
+    {
+      "name": "М. Михаил [B]",
+      "role": "analyst",
+      "absent": null,
+      "active": [
+        {
+          "key": "PRCORE-4556",
+          "title": "[КО | Аналитика] Пакетное перезакрепление клиентов",
+          "status": "В работе",
+          "days_no_move": 2,
+          "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4556"
+        },
+        {
+          "key": "PRCORE-4589",
+          "title": "[ФП КО | Аналитика | МЕТА]  Завести ИВ под взаимодействия внутри АС",
+          "status": "В работе",
+          "days_no_move": 2,
+          "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4589"
+        }
+      ],
+      "prs": [],
+      "blockers": [],
+      "flags": [
+        "2 задачи в работе"
+      ]
+    },
+    {
+      "name": "Н. Иван",
+      "role": "dev",
+      "absent": null,
+      "active": [
+        {
+          "key": "PRCORE-3543",
+          "title": "[PL | Входящие лиды] Редизайн и миграция региона \"Входящие лиды\"",
+          "status": "В работе",
+          "days_no_move": 3,
+          "url": "https://jira.delta.sbrf.ru/browse/PRCORE-3543"
+        },
+        {
+          "key": "PRCORE-4155",
+          "title": "Добавление атрибута data-testid ",
+          "status": "В работе",
+          "days_no_move": 3,
+          "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4155"
+        },
+        {
+          "key": "PRCORE-4433",
+          "title": "[PL | Справка ЛПР] Миграция региона \"Справка ЛПР\"",
+          "status": "В работе",
+          "days_no_move": 3,
+          "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4433"
+        },
+        {
+          "key": "PRCORE-4585",
+          "title": "[ЕФС | АПК | Лиды] Исправить контракты для списка исходящих лидов",
+          "status": "В работе",
+          "days_no_move": 3,
+          "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4585"
+        }
+      ],
+      "prs": [],
+      "blockers": [],
+      "flags": [
+        "4 задачи в работе (порог 2)",
+        "PRCORE-3543 без обновлений 3 дня",
+        "PRCORE-4155 без обновлений 3 дня",
+        "PRCORE-4433 без обновлений 3 дня",
+        "PRCORE-4585 без обновлений 3 дня"
+      ]
+    },
+    {
+      "name": "П. Владислав",
+      "role": "analyst",
+      "absent": null,
+      "active": [
+        {
+          "key": "PRCORE-4344",
+          "title": "[ППРБ | АПК] SDD",
+          "status": "В работе",
+          "days_no_move": 3,
+          "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4344"
+        },
+        {
+          "key": "PRCORE-4503",
+          "title": "[АРМ СБ1 | SOWA] Проверка комплаенс и деловой репутации",
+          "status": "В работе",
+          "days_no_move": 3,
+          "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4503"
+        },
+        {
+          "key": "PRCORE-4372",
+          "title": "[ЕФС | Мой офис] SDD",
+          "status": "В работе",
+          "days_no_move": 1,
+          "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4372"
+        },
+        {
+          "key": "PRCORE-4371",
+          "title": "[ЕФС | АПК] SDD",
+          "status": "В работе",
+          "days_no_move": 1,
+          "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4371"
+        }
+      ],
+      "prs": [],
+      "blockers": [],
+      "flags": [
+        "4 задачи в работе (порог 2)",
+        "PRCORE-4344 без обновлений 3 дня",
+        "PRCORE-4503 без обновлений 3 дня"
+      ]
+    },
+    {
+      "name": "С. Артём",
+      "role": "dev",
+      "absent": null,
+      "active": [],
+      "prs": [],
+      "blockers": [],
+      "flags": [
+        "нет задач в работе"
+      ]
+    },
+    {
+      "name": "У. Алексей",
+      "role": "devops",
+      "absent": null,
+      "active": [
+        {
+          "key": "PRCORE-4165",
+          "title": "[МПР][ППРБ.Марк] Перейти на Gatm",
+          "status": "В работе",
+          "days_no_move": 3,
+          "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4165"
+        },
+        {
+          "key": "PRCORE-4550",
+          "title": "[МПР][ППРБ.КО] Настроить КО на НТ",
+          "status": "В работе",
+          "days_no_move": 2,
+          "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4550"
+        }
+      ],
+      "prs": [],
+      "blockers": [],
+      "flags": [
+        "2 задачи в работе",
+        "PRCORE-4165 без обновлений 3 дня"
+      ]
+    },
+    {
+      "name": "Х. Наталья [B]",
+      "role": "qa",
+      "absent": null,
+      "active": [
+        {
+          "key": "PRCORE-3975",
+          "title": "ЛВК - рассчитано ИИ (все скоры клиента ниже пороговых значений)",
+          "status": "В работе",
+          "days_no_move": 3,
+          "url": "https://jira.delta.sbrf.ru/browse/PRCORE-3975"
+        },
+        {
+          "key": "PRCORE-4591",
+          "title": "Настройка миграции на инструмент Platform V",
+          "status": "В работе",
+          "days_no_move": 2,
+          "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4591"
+        },
+        {
+          "key": "PRCORE-4599",
+          "title": "Корректировка автотестов PeriodFilterLeadTest Список лидов",
+          "status": "В работе",
+          "days_no_move": 1,
+          "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4599"
+        }
+      ],
+      "prs": [],
+      "blockers": [],
+      "flags": [
+        "3 задачи в работе (порог 2)",
+        "PRCORE-3975 без обновлений 3 дня"
+      ]
+    },
+    {
+      "name": "Ш. Алексей",
+      "role": "aqa",
+      "absent": null,
+      "active": [
+        {
+          "key": "PRCORE-4341",
+          "title": "Завезти тестовые данные Суммарные остатки роль HEAD ",
+          "status": "В работе",
+          "days_no_move": 3,
+          "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4341"
+        },
+        {
+          "key": "PRCORE-4583",
+          "title": "Добавление PVATF в проект",
+          "status": "В работе",
+          "days_no_move": 3,
+          "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4583"
+        },
+        {
+          "key": "PRCORE-4512",
+          "title": "[PL | АПК | Лиды] Маскировать номер телефона при создании лида",
+          "status": "На исправлении",
+          "days_no_move": 2,
+          "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4512"
+        }
+      ],
+      "prs": [],
+      "blockers": [],
+      "flags": [
+        "3 задачи в работе (порог 2)",
+        "PRCORE-4341 без обновлений 3 дня",
+        "PRCORE-4583 без обновлений 3 дня"
+      ]
+    }
+  ],
+  "signals": [
+    {
+      "id": "s1",
+      "level": "red",
+      "category": "people",
+      "text": "У А. Артем нет задач в работе: в Jira нет задач в активных статусах, открытых PR нет",
+      "owner": "А. Артем",
+      "reminder": "А. Артем, у тебя нет ни активных задач в Jira, ни открытых PR — возьми, пожалуйста, задачу из бэклога спринта (например PRCORE-4277 в «Реализовано» ждёт привязки к релизу) и переведи её в «В работе» до конца дня"
+    },
+    {
+      "id": "s2",
+      "level": "red",
+      "category": "people",
+      "text": "У С. Артём нет задач в работе: в Jira нет задач в активных статусах, открытых PR нет",
+      "owner": "С. Артём",
+      "reminder": "С. Артём, у тебя нет ни активных задач в Jira, ни открытых PR — возьми, пожалуйста, одну из задач перегруженного Н. Иван (PRCORE-4155 или PRCORE-4433) и переведи её в «В работе» сегодня"
+    },
+    {
+      "id": "s3",
+      "level": "yellow",
+      "category": "people",
+      "text": "PRCORE-3543 «Редизайн и миграция региона Входящие лиды» без обновлений 3 рабочих дня",
+      "owner": "Н. Иван",
+      "age_days": 3,
+      "url": "https://jira.delta.sbrf.ru/browse/PRCORE-3543",
+      "reminder": "Н. Иван, PRCORE-3543 «Редизайн и миграция региона Входящие лиды» не двигалась 3 рабочих дня — напиши, пожалуйста, комментарий с фактическим статусом до 13:00: https://jira.delta.sbrf.ru/browse/PRCORE-3543"
+    },
+    {
+      "id": "s4",
+      "level": "yellow",
+      "category": "people",
+      "text": "PRCORE-4155 «Добавление атрибута data-testid» без обновлений 3 рабочих дня",
+      "owner": "Н. Иван",
+      "age_days": 3,
+      "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4155",
+      "reminder": "Н. Иван, PRCORE-4155 «Добавление атрибута data-testid» не двигалась 3 рабочих дня — отпишись, пожалуйста, в задаче до 13:00: https://jira.delta.sbrf.ru/browse/PRCORE-4155"
+    },
+    {
+      "id": "s5",
+      "level": "yellow",
+      "category": "people",
+      "text": "PRCORE-4433 «Миграция региона Справка ЛПР» без обновлений 3 рабочих дня",
+      "owner": "Н. Иван",
+      "age_days": 3,
+      "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4433",
+      "reminder": "Н. Иван, PRCORE-4433 «Миграция региона Справка ЛПР» не двигалась 3 рабочих дня — напиши, пожалуйста, комментарий с фактическим статусом до 13:00: https://jira.delta.sbrf.ru/browse/PRCORE-4433"
+    },
+    {
+      "id": "s6",
+      "level": "yellow",
+      "category": "people",
+      "text": "PRCORE-4585 «Исправить контракты для списка исходящих лидов» без обновлений 3 рабочих дня",
+      "owner": "Н. Иван",
+      "age_days": 3,
+      "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4585",
+      "reminder": "Н. Иван, PRCORE-4585 «Исправить контракты для списка исходящих лидов» не двигалась 3 рабочих дня — напиши, пожалуйста, комментарий с фактическим статусом до 13:00: https://jira.delta.sbrf.ru/browse/PRCORE-4585"
+    },
+    {
+      "id": "s7",
+      "level": "yellow",
+      "category": "people",
+      "text": "У Н. Иван 4 задачи в работе при пороге 2 (PRCORE-3543, 4155, 4433, 4585)",
+      "owner": "Н. Иван",
+      "reminder": "Н. Иван, у тебя 4 задачи в работе при пороге 2 — предложи до завтра, какую из них снять или передать С. Артём, у которого задач нет"
+    },
+    {
+      "id": "s8",
+      "level": "yellow",
+      "category": "people",
+      "text": "PRCORE-4344 «ППРБ | АПК SDD» без обновлений 3 рабочих дня",
+      "owner": "П. Владислав",
+      "age_days": 3,
+      "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4344",
+      "reminder": "П. Владислав, PRCORE-4344 «ППРБ | АПК SDD» не двигалась 3 рабочих дня — напиши, пожалуйста, комментарий с фактическим статусом до 13:00: https://jira.delta.sbrf.ru/browse/PRCORE-4344"
+    },
+    {
+      "id": "s9",
+      "level": "yellow",
+      "category": "people",
+      "text": "PRCORE-4503 «АРМ СБ1 | SOWA. Проверка комплаенс и деловой репутации» без обновлений 3 рабочих дня",
+      "owner": "П. Владислав",
+      "age_days": 3,
+      "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4503",
+      "reminder": "П. Владислав, PRCORE-4503 «АРМ СБ1 | SOWA. Проверка комплаенс и деловой репутации» не двигалась 3 рабочих дня — напиши, пожалуйста, комментарий с фактическим статусом до 13:00: https://jira.delta.sbrf.ru/browse/PRCORE-4503"
+    },
+    {
+      "id": "s10",
+      "level": "yellow",
+      "category": "people",
+      "text": "У П. Владислав 4 задачи в работе при пороге 2 (PRCORE-4344, 4503, 4372, 4371)",
+      "owner": "П. Владислав",
+      "reminder": "П. Владислав, у тебя 4 задачи в работе при пороге 2 — предложи до завтра, какую из них снять или передать, тем более что у А. Артем и С. Артём задач нет"
+    },
+    {
+      "id": "s11",
+      "level": "yellow",
+      "category": "people",
+      "text": "PRCORE-4165 «ППРБ.Марк. Перейти на Gatm» без обновлений 3 рабочих дня",
+      "owner": "У. Алексей",
+      "age_days": 3,
+      "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4165",
+      "reminder": "У. Алексей, PRCORE-4165 «ППРБ.Марк. Перейти на Gatm» не двигалась 3 рабочих дня — напиши, пожалуйста, комментарий с фактическим статусом до 13:00: https://jira.delta.sbrf.ru/browse/PRCORE-4165"
+    },
+    {
+      "id": "s12",
+      "level": "yellow",
+      "category": "people",
+      "text": "PRCORE-3975 «ЛВК - рассчитано ИИ» без обновлений 3 рабочих дня",
+      "owner": "Х. Наталья [B]",
+      "age_days": 3,
+      "url": "https://jira.delta.sbrf.ru/browse/PRCORE-3975",
+      "reminder": "Х. Наталья [B], PRCORE-3975 «ЛВК - рассчитано ИИ» не двигалась 3 рабочих дня — напиши, пожалуйста, комментарий с фактическим статусом до 13:00: https://jira.delta.sbrf.ru/browse/PRCORE-3975"
+    },
+    {
+      "id": "s13",
+      "level": "yellow",
+      "category": "people",
+      "text": "У Х. Наталья [B] 3 задачи в работе при пороге 2 (PRCORE-3975, 4591, 4599)",
+      "owner": "Х. Наталья [B]",
+      "reminder": "Х. Наталья [B], у тебя 3 задачи в работе при пороге 2 — определи до завтра, какую из них снять или передать, чтобы успеть по автотестам"
+    },
+    {
+      "id": "s14",
+      "level": "yellow",
+      "category": "people",
+      "text": "PRCORE-4341 «Завезти тестовые данные Суммарные остатки роль HEAD» без обновлений 3 рабочих дня",
+      "owner": "Ш. Алексей",
+      "age_days": 3,
+      "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4341",
+      "reminder": "Ш. Алексей, PRCORE-4341 «Завезти тестовые данные Суммарные остатки роль HEAD» не двигалась 3 рабочих дня — напиши, пожалуйста, комментарий с фактическим статусом до 13:00: https://jira.delta.sbrf.ru/browse/PRCORE-4341"
+    },
+    {
+      "id": "s15",
+      "level": "yellow",
+      "category": "people",
+      "text": "PRCORE-4583 «Добавление PVATF в проект» без обновлений 3 рабочих дня",
+      "owner": "Ш. Алексей",
+      "age_days": 3,
+      "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4583",
+      "reminder": "Ш. Алексей, PRCORE-4583 «Добавление PVATF в проект» не двигалась 3 рабочих дня — напиши, пожалуйста, комментарий с фактическим статусом до 13:00: https://jira.delta.sbrf.ru/browse/PRCORE-4583"
+    },
+    {
+      "id": "s16",
+      "level": "yellow",
+      "category": "people",
+      "text": "У Ш. Алексей 3 задачи в работе при пороге 2 (PRCORE-4341, 4583, 4512)",
+      "owner": "Ш. Алексей",
+      "reminder": "Ш. Алексей, у тебя 3 задачи в работе при пороге 2 — предложи до завтра, какую из них снять или передать, чтобы освободить время на автотесты"
+    },
+    {
+      "id": "s17",
+      "level": "yellow",
+      "category": "release",
+      "text": "Release PRCORE-4577 «ФП Маркирование 3.9.0» стоит в стадии «Формирование» — 5 рабочих дней без обновлений",
+      "owner": "Техлид",
+      "age_days": 5,
+      "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4577",
+      "reminder": "Коллеги, PRCORE-4577 «ФП Маркирование 3.9.0» 5 рабочих дней не двигается на стадии «Формирование» — назначьте ответственного и переведите тикет на следующую стадию до конца дня: https://jira.delta.sbrf.ru/browse/PRCORE-4577"
+    },
+    {
+      "id": "s18",
+      "level": "yellow",
+      "category": "release",
+      "text": "Release PRCORE-4415 «Анкета премиального клиента Х.Х.Х [BH]» стоит в «Формирование» — 14 рабочих дней без обновлений",
+      "owner": "Техлид",
+      "age_days": 14,
+      "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4415",
+      "reminder": "Коллеги, PRCORE-4415 «Анкета премиального клиента Х.Х.Х [BH]» 14 рабочих дней не двигается на стадии «Формирование» — решите до завтра: наполнить тикет задачами или отменить: https://jira.delta.sbrf.ru/browse/PRCORE-4415"
+    },
+    {
+      "id": "s19",
+      "level": "yellow",
+      "category": "release",
+      "text": "Release PRCORE-4234 «Анкета премиального клиента 4.7.0 [BH]» в «Готов к установке на ПРОМ» — 15 рабочих дней без обновлений",
+      "owner": "Техлид",
+      "age_days": 15,
+      "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4234",
+      "reminder": "Коллеги, PRCORE-4234 «Анкета премиального клиента 4.7.0 [BH]» 15 рабочих дней висит в «Готов к установке на ПРОМ» — согласуйте окно установки до завтра: https://jira.delta.sbrf.ru/browse/PRCORE-4234"
+    },
+    {
+      "id": "s20",
+      "level": "yellow",
+      "category": "release",
+      "text": "Release PRCORE-4410 «Анкета премиального клиента 4.7.1 [BH]» в «Готов к установке на ПРОМ» — 8 рабочих дней без обновлений",
+      "owner": "Техлид",
+      "age_days": 8,
+      "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4410",
+      "reminder": "Коллеги, PRCORE-4410 «Анкета премиального клиента 4.7.1 [BH]» 8 рабочих дней в «Готов к установке на ПРОМ» — согласуйте установку до завтра: https://jira.delta.sbrf.ru/browse/PRCORE-4410"
+    },
+    {
+      "id": "s21",
+      "level": "yellow",
+      "category": "release",
+      "text": "Release PRCORE-4435 «Анкета премиального клиента 4.8.0 [BH]» в «Готов к установке на ПРОМ» — 7 рабочих дней без обновлений",
+      "owner": "Техлид",
+      "age_days": 7,
+      "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4435",
+      "reminder": "Коллеги, PRCORE-4435 «Анкета премиального клиента 4.8.0 [BH]» готова к установке, но 7 рабочих дней не двигалась — назначьте окно установки на ПРОМ до конца дня: https://jira.delta.sbrf.ru/browse/PRCORE-4435"
+    },
+    {
+      "id": "s22",
+      "level": "yellow",
+      "category": "release",
+      "text": "Release PRCORE-4434 «СБОЛ.Про.Знания о клиенте [PL]» в «Готов к установке на ПРОМ» — 7 рабочих дней без обновлений",
+      "owner": "Техлид",
+      "age_days": 7,
+      "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4434",
+      "reminder": "Коллеги, PRCORE-4434 «СБОЛ.Про.Знания о клиенте [PL]» готова к установке, но 7 рабочих дней не двигалась — назначьте окно установки на ПРОМ до конца дня: https://jira.delta.sbrf.ru/browse/PRCORE-4434"
+    },
+    {
+      "id": "s23",
+      "level": "yellow",
+      "category": "release",
+      "text": "Release PRCORE-4454 «Мой офис 1.7.0 [BH]» на стадии «Утверждение ППСИ» — 7 рабочих дней без обновлений",
+      "owner": "Техлид",
+      "age_days": 7,
+      "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4454",
+      "reminder": "Коллеги, PRCORE-4454 «Мой офис 1.7.0 [BH]» застрял на «Утверждение ППСИ» 7 рабочих дней — уточните статус ППСИ до конца дня: https://jira.delta.sbrf.ru/browse/PRCORE-4454"
+    },
+    {
+      "id": "s24",
+      "level": "yellow",
+      "category": "release",
+      "text": "Release PRCORE-4285 «Мой офис 1.8.0 [BH]» на стадии «Установка на ПРОМ» — 5 рабочих дней без обновлений",
+      "owner": "Техлид",
+      "age_days": 5,
+      "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4285",
+      "reminder": "Коллеги, PRCORE-4285 «Мой офис 1.8.0 [BH]» стоит на «Установка на ПРОМ» 5 рабочих дней — подтвердите установку и переведите тикет в «Установлен на ПРОМ» до конца дня: https://jira.delta.sbrf.ru/browse/PRCORE-4285"
+    },
+    {
+      "id": "s25",
+      "level": "yellow",
+      "category": "release",
+      "text": "Готово к выводу, но без тикета Release 2.0: PRCORE-4543, PRCORE-4553, PRCORE-4277, PRCORE-4077, PRCORE-4501",
+      "owner": "Техлид",
+      "reminder": "Коллеги, пять задач в статусе «Реализовано» не прилинкованы ни к одному тикету Release 2.0 (PRCORE-4543, 4553, 4277, 4077, 4501) — прилинкуйте их к релизам до завтра, иначе работа не попадёт в вывод: https://jira.delta.sbrf.ru/browse/PRCORE-4543"
+    },
+    {
+      "id": "s26",
+      "level": "yellow",
+      "category": "people",
+      "text": "В Jira задача PRCORE-4188 назначена на исполнителя 19017945, которого нет в команде из techlead.yaml",
+      "owner": "Техлид",
+      "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4188",
+      "reminder": "Коллеги, PRCORE-4188 назначена на 19017945, которого нет в techlead.yaml — уточните, кто это, и добавьте его в команду или переназначьте задачу сегодня: https://jira.delta.sbrf.ru/browse/PRCORE-4188"
+    }
+  ],
+  "prs": [],
+  "releases": {
+    "stages": [
+      "Формирование",
+      "Утверждение ППСИ",
+      "Готов к установке на ПРОМ",
+      "Установка на ПРОМ"
+    ],
+    "done_status": "Установлен на ПРОМ",
+    "upcoming": [
+      {
+        "key": "PRCORE-4552",
+        "title": "Мой офис 1.9.0 [BH]",
+        "planned_date": "2026-10-21",
+        "status": "Установка на ПРОМ",
+        "days_no_move": 2,
+        "linked": [],
+        "issues": [
+          "нет связанных задач",
+          "без обновлений 2 дней"
+        ],
+        "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4552"
+      },
+      {
+        "key": "PRCORE-4285",
+        "title": "Мой офис 1.8.0 [BH]",
+        "planned_date": "2026-10-16",
+        "status": "Установка на ПРОМ",
+        "days_no_move": 5,
+        "linked": [],
+        "issues": [
+          "нет связанных задач",
+          "без обновлений 5 дней"
+        ],
+        "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4285"
+      },
+      {
+        "key": "PRCORE-4454",
+        "title": "Мой офис 1.7.0 [BH]",
+        "planned_date": "2026-10-16",
+        "status": "Утверждение ППСИ",
+        "days_no_move": 7,
+        "linked": [],
+        "issues": [
+          "нет связанных задач",
+          "без обновлений 7 дней"
+        ],
+        "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4454"
+      },
+      {
+        "key": "PRCORE-4577",
+        "title": "ФП Маркирование 3.9.0",
+        "planned_date": "2026-10-14",
+        "status": "Формирование",
+        "days_no_move": 5,
+        "linked": [],
+        "issues": [
+          "нет связанных задач",
+          "без обновлений 5 дней"
+        ],
+        "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4577"
+      },
+      {
+        "key": "PRCORE-4435",
+        "title": "Анкета премиального клиента 4.8.0 [BH]",
+        "planned_date": "2026-10-13",
+        "status": "Готов к установке на ПРОМ",
+        "days_no_move": 7,
+        "linked": [],
+        "issues": [
+          "нет связанных задач",
+          "без обновлений 7 дней"
+        ],
+        "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4435"
+      },
+      {
+        "key": "PRCORE-4434",
+        "title": "СБОЛ.Про.Знания о клиенте [PL]",
+        "planned_date": "2026-10-13",
+        "status": "Готов к установке на ПРОМ",
+        "days_no_move": 7,
+        "linked": [],
+        "issues": [
+          "нет связанных задач",
+          "без обновлений 7 дней"
+        ],
+        "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4434"
+      },
+      {
+        "key": "PRCORE-4234",
+        "title": "Анкета премиального клиента 4.7.0 [BH]",
+        "planned_date": "2026-09-25",
+        "status": "Готов к установке на ПРОМ",
+        "days_no_move": 15,
+        "linked": [],
+        "issues": [
+          "нет связанных задач",
+          "без обновлений 15 дней"
+        ],
+        "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4234"
+      },
+      {
+        "key": "PRCORE-4415",
+        "title": "Анкета премиального клиента Х.Х.Х [BH]",
+        "planned_date": "2026-09-30",
+        "status": "Формирование",
+        "days_no_move": 14,
+        "linked": [],
+        "issues": [
+          "нет связанных задач",
+          "без обновлений 14 дней"
+        ],
+        "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4415"
+      },
+      {
+        "key": "PRCORE-4410",
+        "title": "Анкета премиального клиента 4.7.1 [BH]",
+        "planned_date": "2026-09-30",
+        "status": "Готов к установке на ПРОМ",
+        "days_no_move": 8,
+        "linked": [],
+        "issues": [
+          "нет связанных задач",
+          "без обновлений 8 дней"
+        ],
+        "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4410"
+      }
+    ],
+    "past": [
+      {
+        "key": "PRCORE-4446",
+        "title": "ФП Команды обслуживания [fraudmon-events:1.0.0]",
+        "planned_date": "2026-10-16",
+        "closed_date": "2026-10-15T11:15:42.000+0300",
+        "status": "Установлен на ПРОМ",
+        "linked": [],
+        "issues": [
+          "нет связанных задач"
+        ],
+        "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4446"
+      },
+      {
+        "key": "PRCORE-4438",
+        "title": "Анкета премиального клиента  4.9.0 [ППРБ]",
+        "planned_date": "2026-10-13",
+        "closed_date": "2026-10-09T17:11:55.000+0300",
+        "status": "Установлен на ПРОМ",
+        "linked": [],
+        "issues": [
+          "нет связанных задач"
+        ],
+        "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4438"
+      },
+      {
+        "key": "PRCORE-4481",
+        "title": "ФП Команды обслуживания [teams:5.10.0;mailing:2.5.0;fraudmon-job:2.0.4]",
+        "planned_date": "2026-10-08",
+        "closed_date": "2026-10-09T14:17:13.000+0300",
+        "status": "Установлен на ПРОМ",
+        "linked": [],
+        "issues": [
+          "нет связанных задач"
+        ],
+        "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4481"
+      },
+      {
+        "key": "PRCORE-4238",
+        "title": "ФП Маркирование 3.8.0",
+        "planned_date": "2026-09-25",
+        "closed_date": "2026-09-29T11:42:17.000+0300",
+        "status": "Установлен на ПРОМ",
+        "linked": [],
+        "issues": [
+          "нет связанных задач"
+        ],
+        "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4238"
+      },
+      {
+        "key": "PRCORE-4242",
+        "title": "ФП Команды обслуживания 5.9.0",
+        "planned_date": "2026-09-25",
+        "closed_date": "2026-09-29T11:41:27.000+0300",
+        "status": "Установлен на ПРОМ",
+        "linked": [],
+        "issues": [
+          "нет связанных задач"
+        ],
+        "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4242"
+      },
+      {
+        "key": "PRCORE-4179",
+        "title": "Мой офис 1.6.0 [BH]",
+        "planned_date": "2026-09-25",
+        "closed_date": "2026-09-24T10:30:26.000+0300",
+        "status": "Установлен на ПРОМ",
+        "linked": [],
+        "issues": [
+          "нет связанных задач"
+        ],
+        "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4179"
+      },
+      {
+        "key": "PRCORE-4351",
+        "title": "Мой офис 1.6.1 [BH]",
+        "planned_date": "2026-09-30",
+        "closed_date": "2026-09-29T12:00:27.000+0300",
+        "status": "Установлен на ПРОМ",
+        "linked": [],
+        "issues": [
+          "нет связанных задач"
+        ],
+        "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4351"
+      }
+    ],
+    "ready_without_release": [
+      {
+        "key": "PRCORE-4543",
+        "title": "Актуализация АТ Маркирование",
+        "assignee": "Ш. Алексей",
+        "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4543"
+      },
+      {
+        "key": "PRCORE-4553",
+        "title": "Прилинковать ТК к релизу: PRCORE-4552",
+        "assignee": "Ш. Алексей",
+        "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4553"
+      },
+      {
+        "key": "PRCORE-4277",
+        "title": "[ППРБ | АПК] Получение согласия К-2 из УСК",
+        "assignee": "А. Артем",
+        "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4277"
+      },
+      {
+        "key": "PRCORE-4077",
+        "title": "[Чаты СБОЛ.Про | Аналитика] Просмотр файлов в чатах",
+        "assignee": "М. Михаил [B]",
+        "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4077"
+      },
+      {
+        "key": "PRCORE-4501",
+        "title": "[АРМ СБ1 | Аналитика] Проверка комплаенс и деловой репутации",
+        "assignee": "М. Михаил [B]",
+        "url": "https://jira.delta.sbrf.ru/browse/PRCORE-4501"
+      }
+    ]
+  },
+  "tests": {
+    "jobs": [
+      {
+        "name": "service-team/PPRB_Core_Autotest",
+        "state": "ok",
+        "last_run": "2026-10-21T06:46:08Z",
+        "url": "https://ci.jenkins.sberbank.ru/job/service-team/job/PPRB_Core_Autotest/1615/"
+      }
+    ],
+    "launches": [],
+    "failures": []
+  },
+  "coverage": {
+    "projects": []
+  },
+  "recommendations": [
+    {
+      "who": "Техлид",
+      "what": "Разгрузить перегруженных: снять с П. Владислав и Н. Иван по одной задаче (кандидаты — PRCORE-4503 и PRCORE-4433) и передать А. Артем и С. Артём, у которых нет ни задач, ни PR",
+      "when": "сегодня до 15:00",
+      "why": "Двое без работы при 4 активных задачах у двоих других и пороге 2 (сигналы s1, s2, s7, s10)"
+    },
+    {
+      "who": "Техлид",
+      "what": "Прогнать конвейер релизов: по PRCORE-4577 актуализировать наполнение (связанные задачи PRCORE-4578 и PRCORE-4580 ещё не закрыты), по PRCORE-4415 решить — наполнять или отменять, по PRCORE-4234/4435/4434/4410 согласовать окно установки на ПРОМ",
+      "when": "сегодня до 17:00",
+      "why": "PRCORE-4577 и PRCORE-4415 стоят в «Формирование» 5 и 14 рабочих дней, четыре «Анкеты» в «Готов к установке» висят 7–15 рабочих дней (сигналы s17–s22)"
+    },
+    {
+      "who": "Ш. Алексей",
+      "what": "Прилинковать 5 задач в статусе «Реализовано» к тикетам Release 2.0 (PRCORE-4543, 4553, 4277, 4077, 4501)",
+      "when": "завтра до 12:00",
+      "why": "ready_without_release: работа готова, но в релиз не попадает — https://jira.delta.sbrf.ru/browse/PRCORE-4543"
+    },
+    {
+      "who": "Н. Иван",
+      "what": "Отписаться по PRCORE-3543, 4155, 4433, 4585 и передать одну-две задачи С. Артём",
+      "when": "завтра до 11:00",
+      "why": "4 задачи в работе при пороге 2, все без обновлений 3 рабочих дня — https://jira.delta.sbrf.ru/browse/PRCORE-3543"
+    },
+    {
+      "who": "Техлид",
+      "what": "Разобраться со story points спринта (оценены только 2 задачи из 61) и с задачей PRCORE-4188 на исполнителя 19017945 вне команды",
+      "when": "завтра до 12:00",
+      "why": "sp_total=2 при 61 задаче спринта — прогресс и риск срыва не измеряются; исполнитель отсутствует в techlead.yaml — https://jira.delta.sbrf.ru/browse/PRCORE-4188"
+    }
+  ]
+}

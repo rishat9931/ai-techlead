@@ -23,9 +23,10 @@ description: Строит снимок стендапа reports/<дата>.json 
   `calendar.holidays`, `jira.statuses`, `release.issue_type`, `release.exclude_types`, `jenkins.jobs[]` `{name, testops_project, smoke}`,
   `jenkins.max_idle_days`, `testops.projects[]`, `testops.coverage_target`, `thresholds`
   (`pr_stale_days`, `pr_critical_days`, `task_stale_days`, `max_wip_per_person`, `flaky_history_runs`).
-- `reports/raw/<дата>/jira.json` — `data: {sprint, issues[], releases[], releases_undated[], ready_without_release[], unknown_people[], truncated?}`;
-  `issues[]`: `{key, title, type, status, status_group, assignee, story_points, in_sprint, last_status_change, links[{key, link_type}], url}`;
-  `releases[]`: `{key, title, status, planned_date, closed_date, last_status_change, links[{key, link_type}], url}`.
+- `reports/raw/<дата>/jira.json` — `data: {sprint, issues[], releases[], releases_undated[], ready_without_release[], unknown_people[], notes[], truncated?}`;
+  `issues[]`: `{key, title, type, status, status_group, assignee, story_points, in_sprint, created, updated, links[{key, link_type}], url}`;
+  `releases[]`: `{key, title, status, planned_date, closed_date, updated, links[{key, link_type}], url}`.
+  `notes[]` — заметки сборщика о ходе сбора; в отчёт не переносятся, но могут объяснить неполные данные.
 - `reports/raw/<дата>/bitbucket.json` — `data: {prs[], unknown_people[], repo_errors[], truncated?}`;
   `prs[]`: `{repo, id, title, author, reviewers[] (логин или {login, status}), created, last_human_activity {at, who, what},
   whose_turn (reviewers|author|null), build, conflicts, needs_work, jira_key, url}`.
@@ -56,36 +57,43 @@ description: Строит снимок стендапа reports/<дата>.json 
 3. **Рабочие дни.** Собери **все** элементы, которым нужен счёт дней, и сделай **один** вызов:
    `node .techlead/bin/workdays.mjs '{"today":"<дата>","holidays":[…calendar.holidays],"items":[…]}'`
    → `{"<id>": рабочих дней}`. Дата `since` — только часть `YYYY-MM-DD` от ISO-времени. Элементы:
-   - `task:<key>` — `since` = `last_status_change` задачи, `absent` = `absent` её исполнителя (или `[]`);
+   - `task:<key>` — `since` = `updated` задачи, `absent` = `absent` её исполнителя (или `[]`);
    - `pr-idle:<repo>#<id>` — `since` = `last_human_activity.at`, `absent` = `absent` того, чей ход
      (автор при `author`; при `reviewers` — `[]`);
    - `pr-age:<repo>#<id>` — `since` = `created`, `absent` = `[]`;
-   - `rel:<key>` — `since` = `last_status_change` тикета Release 2.0, `absent` = `[]`;
+   - `rel:<key>` — `since` = `updated` тикета Release 2.0, `absent` = `[]`;
    - `job:<name>` — `since` = `last_run` джобы (если не `null`), `absent` = `[]`;
    - `sprint-day` — `since` = день **перед** `sprint.start`, `absent` = `[]` (номер текущего дня спринта).
    Длину спринта считай вторым вызовом с `"today": sprint.end` и элементом `sprint-total` (`since` = день перед `start`).
    Скрипт вернул код 2 — исправь ввод (даты строго `YYYY-MM-DD`) и повтори. Сам дни не считай.
 4. **Разделы отчёта** (поля — строго по схеме):
-   - `sprint`: `{name, state, start, end, sp_done, sp_total, scope_added[{key, title, url}]}` из jira (title/url — из `issues[]`),
+   - `sprint`: `{name, state, goal, start, end, sp_done, sp_total, scope_added[{key, title, url}]}` из jira (title/url — из `issues[]`),
+     `goal` — цель спринта как есть из raw-файла; поля нет или пусто → `null` (не выдумывай цель),
      `day` = `sprint-day`, `days_total` = `sprint-total`, `done_pct` = round(`sp_done`/`sp_total`·100) (при `sp_total` 0 → 0),
      `risk` — строка, если `done_pct` отстаёт от доли прошедших дней (`day`/`days_total`·100) больше чем на 15 п.п.
      (например «При текущем темпе не закроются ≈N SP»), иначе `null`. `sprint: null` в raw → `sprint: {}`.
    - `people[]` — по одному на **каждого** `team.members[]` (в порядке конфига): `{name, role, absent, active, prs, blockers, flags}`;
      `active` — задачи исполнителя в группе `active` (и `blocked`) `{key, title, status, days_no_move = task:<key>, url}`;
      `prs` — открытые PR, где он автор, `{repo, id, url}`; `blockers` — его задачи в группе `blocked` `{key, text: статус, url}`;
-     `flags` — короткие фразы по его сигналам («3 задачи в работе», «PAY-1268 без движения 3 дня», «нет задач в работе»,
+     `flags` — короткие фразы по его сигналам («3 задачи в работе», «PAY-1268 без обновлений 3 дня», «нет задач в работе»,
      «в отпуске, задача без заменяющего»). Массивы всегда есть, даже пустые.
    - `prs[]`: `{repo, id, title, author (имя), reviewers (массив имён, без статусов), age_days = pr-age, idle_days = pr-idle,
      whose_turn, last_human_activity, build, jira_key, url}`. `last_human_activity` — строка
      `"YYYY-MM-DD HH:MM · <Имя>: <что>"` (`commit`→«коммит», `comment`→«комментарий», `approve`→«апрув»,
      `needs_work`→«needs work», `opened`→«создал PR»). `whose_turn` из raw = `null` → **поле не пиши** (оно не обязательно);
      такой PR в сигналах «чей ход» не участвует, владелец сигнала — «Техлид».
-   - `releases`: `upcoming` — тикеты с `planned_date ≥ сегодня`, `past` — с `planned_date < сегодня`;
+   - `releases`: `stages` = `release.statuses` из конфига (порядок конвейера), `done_status` = `release.done_status`
+     (нет ключа — «Установлен на ПРОМ»); `upcoming` — **открытые** тикеты (статус ≠ `done_status`),
+     `past` — **выведенные** (статус = `done_status`, дата резолюции есть).
      `{key, title, planned_date, status, linked = links[].key, issues[], url}`, в `upcoming` ещё `days_no_move = rel:<key>`,
-     в `past` — `closed_date`. `issues` — фразы: «нет связанных задач»; «дата прошла, тикет открыт» (нет `closed_date`
-     и статус не из `jira.statuses.done`); «без движения N дней» (N > `task_stale_days`); «<KEY> ещё в <статус>» для связанной
-     задачи из `issues[]`, которая не в группах `done`/`ready_for_release`. `ready_without_release` — из jira как есть,
-     `assignee` → имя.
+     в `past` — `closed_date`.
+     **Плановая дата — это план, а не дедлайн:** открытый релиз не бывает «просроченным» и не относится к «прошедшим».
+     Про сдвиг плана говори только по факту конвейера: «план 13.10 прошёл, релиз всё ещё на стадии «Готов к установке на ПРОМ»,
+     без движения N р. дн.» — и это повод для сигнала, только если `days_no_move > task_stale_days`.
+     `issues` — фразы: «нет связанных задач»; «без обновлений N дней» (N > `task_stale_days`); «дата резолюции не заполнена»
+     (выведенный тикет без `closed_date`); «<KEY> ещё в <статус>» для связанной задачи из `issues[]`, которая не в группах
+     `done`/`ready_for_release`. Фраз «дата прошла, тикет открыт» и «просрочен» не используй.
+     `ready_without_release` — из jira как есть, `assignee` → имя.
    - `tests.jobs[]` `{name, state, last_run, url}`: `hung` и `failed_before_tests` — как в raw; `ok` → `idle`, если
      `last_run` = `null` или `job:<name>` > `jenkins.max_idle_days`; иначе `ok`.
    - **Проект TestOps** везде в отчёте — `name` из `testops.projects[]` по `id` (не нашёлся — значение как в raw):
@@ -105,7 +113,7 @@ description: Строит снимок стендапа reports/<дата>.json 
 7. **Сигналы** — пороги из `thresholds`, все дни — рабочие из шага 3. Каждому сигналу:
    `{id: "s1","s2",… по порядку, level, category, text, owner, age_days, url, reminder}`.
    `owner` — имя из `team.members` или «Техлид»; `url` — ссылка на задачу/PR/лонч/джобу; `age_days` — рабочие дни простоя/
-   без движения исходного элемента (задачи, PR, релиза, джобы; для состояния «нет задач» — с последней смены статуса его
+   без обновлений исходного элемента (задачи, PR, релиза, джобы; для состояния «нет задач» — с последней смены статуса его
    задач, если известно) из шага 3, для событий сегодняшнего дня — `0`. Нет ссылки или нельзя посчитать дни — **поле не пиши**
    (никогда не `null`).
    **Охрана источников:** сигнал строится только если все источники, от которых он зависит, `ok` или `partial`
@@ -113,7 +121,7 @@ description: Строит снимок стендапа reports/<дата>.json 
    и любые проверки «есть открытый PR»; TestOps — `tests` по лончам/падениям и `coverage`; Jenkins — `tests` по джобам.
    Занятость человека: задачи в `active` (если jira `ok|partial`) **или** открытые PR, где он автор/ревьюер — PR учитываются
    только если bitbucket `ok|partial`; bitbucket `unavailable` → занятость только по Jira, сигнал «задача в ревью без PR»
-   и PR-сигналы не ставятся. Jira `unavailable` → никаких сигналов «без работы»/«без движения» по людям и пустой `meta.questions`.
+   и PR-сигналы не ставятся. Jira `unavailable` → никаких сигналов «без работы»/«без обновлений» по людям и пустой `meta.questions`.
    🔴 `red`:
    - нет активного спринта (jira ok, `sprint` = `null`) — `sprint`, «Техлид»;
    - красный smoke: лонч smoke-джобы и `failed + broken > 0`. Джоба лонча — `launches[].job`; если `job` = `null` — джоба из
@@ -126,9 +134,12 @@ description: Строит снимок стендапа reports/<дата>.json 
      автор → автор).
    🟡 `yellow`:
    - PR: `pr_stale_days < idle_days ≤ pr_critical_days` — `pr`; PR без `jira_key` — `pr`, автор;
-   - задача без движения: `days_no_move > task_stale_days` — `people`, исполнитель;
+   - задача без обновлений: `days_no_move > task_stale_days` — `people`, исполнитель;
    - WIP: задач в группе `active` у человека > `max_wip_per_person` — `people`;
-   - Release 2.0: непустые `issues` у ближайшего или прошедшего тикета; тикет из `releases_undated` («нет даты вывода») — `release`;
+   - Release 2.0: у ближайшего или любого открытого тикета непустые `issues` (кроме «нет связанных задач» и
+     «<KEY> ещё в <статус>» — это шум) — `release`; тикет из `releases_undated` («нет даты вывода») — `release`;
+     открытый тикет, стоящий на стадии конвейера (`stages`) без движения дольше `task_stale_days` — `release`,
+     текст через стадию («релиз не двигается, план N прошёл — уточнить окно установки/дату»), а не «просрочен»;
      владелец — исполнитель связанной незавершённой задачи, иначе «Техлид»;
    - задача из `ready_without_release` — `release`, исполнитель;
    - новый flaky: тест с `is_new` и в `history` есть и `pass`, и не меньше двух `fail` не подряд — `tests`;
@@ -140,12 +151,12 @@ description: Строит снимок стендапа reports/<дата>.json 
    - `unknown_people` из jira/bitbucket — `people`, «Техлид»;
    - у отсутствующего есть задачи в `active` или открытые PR — `people`, «Техлид», текст «… в отпуске до <to>, <KEY/PR>
      без заменяющего» → нужен заменяющий.
-   Для **отсутствующих** сигнал «нет задач» и сигналы «без движения» не ставь — только «нужен заменяющий».
+   Для **отсутствующих** сигнал «нет задач» и сигналы «без обновлений» не ставь — только «нужен заменяющий».
    `reminder` — по образцу: обращение по имени, что сделать, срок, ссылка. Пример:
    «Иван, PR pay-core#807 «Идемпотентность платёжных callback-ов» ждёт твоего ревью 3 дня — глянь, пожалуйста, до 13:00:
    <url>». Владельцу «Техлид» — обращение «Коллеги, …». Без ссылки — без выдуманного URL.
 8. **Вопросы по отклонениям** → `meta.questions[]` (только при jira `ok|partial`, иначе `[]`). Для каждого **присутствующего** человека с сигналом «нет задач в работе»
-   или «без движения > порога», если в конфиге нет объяснения (нет `absent`, покрывающего эти дни, и дня нет в
+   или «без обновлений > порога», если в конфиге нет объяснения (нет `absent`, покрывающего эти дни, и дня нет в
    `calendar.holidays`), добавь один элемент на человека: `{person: "<Имя>", text: "У <Имя> <отклонение> — это
    отпуск/больничный или праздник?"}`. Например: `{"person": "Олег Кузнецов", "text": "У Олега Кузнецова нет задач
    в работе со вчерашнего дня — это отпуск/больничный или праздник?"}`. Вопросы задаёт оркестратор, не ты.

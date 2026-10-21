@@ -99,6 +99,37 @@ gigacode extensions list    # в списке есть ai-techlead
 
 Совет: заведите в Confluence страницы «Подключение MCP atlassian / bitbucket / jenkins / testops». Тогда preflight будет показывать их автоматически, а их id можно указать в `mcp.setup_docs.pages`.
 
+## Конфиг решает: JQL-срезы и лимиты
+
+Сборщик Jira ничего не придумывает сам — он исполняет запросы из `techlead.yaml`. Подход тот же,
+что в кокпите PO: срез данных = проверенный человеком JQL в конфиге, а знания о причудах сервера
+живут в комментариях рядом с запросом.
+
+Ключи в `techlead.yaml`:
+
+```yaml
+jira:
+  # Готовые JQL-срезы (необязательно): sprint_issues, outside_sprint, releases, ready_for_release.
+  # Заданы — сборщик только исполняет их (<ACTIVE_SPRINT_ID> подставится сам);
+  # не заданы — соберёт дефолтные из project/statuses и запишет это в notes сырого файла.
+  queries:
+    releases: 'project = PRCORE AND issuetype = "Release 2.0" ORDER BY updated DESC'
+  # Лимиты сбора вместо зашитых констант.
+  limits: { issues: 120, releases: 50 }
+  # Имя поля story points, если стандартное не отдаётся.
+  story_points_field: null
+
+release:
+  date_fields: [duedate]   # поля даты вывода по приоритету; добавьте своё кастомное один раз
+
+bitbucket:
+  activity_limit: 30       # сколько последних событий активности читать на PR
+```
+
+Экономия не косметическая: сборщик не читает changelog каждой задачи и историю спринта — все поля
+берутся из обычного ответа поиска, «без движения N дней» считается по дате `updated`. Что упало и чем
+заменено — честно пишется в `data.notes[]` сырого файла `reports/raw/<дата>/jira.json`.
+
 ## Использование
 
 - `/standup` — полный сбор и анализ, затем страница `dashboard.html`.

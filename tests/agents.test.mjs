@@ -61,6 +61,19 @@ test('контракты сборщиков: in_sprint в jira, job в testops',
   assert.match(body('testops-collector'), /launches\[\]`: `\{project, job,/);
 });
 
+test('jira-коллектор: JQL из конфига, updated вместо changelog, notes[]; аналитик — updated', () => {
+  const body = (n) => parse(readFileSync(join(AGENTS, `${n}.md`), 'utf8')).body;
+  const j = body('jira-collector');
+  assert.match(j, /jira\.queries/, 'срезы из конфига');
+  assert.match(j, /jira\.limits/, 'лимиты из конфига');
+  assert.match(j, /changelog не запрашивай|Запрашивать changelog/, 'без changelog');
+  assert.match(j, /notes\[\]/, 'заметки сбора');
+  assert.doesNotMatch(j, /last_status_change/);
+  const a = body('techlead-analyst');
+  assert.match(a, /`since` = `updated`/, 'workdays по updated');
+  assert.doesNotMatch(a, /last_status_change/);
+});
+
 test('аналитики: техлид — workdays.mjs, validate.mjs, meta.questions; тесты — схема и top_clusters', () => {
   const body = (n) => parse(readFileSync(join(AGENTS, `${n}.md`), 'utf8')).body;
   const a = body('techlead-analyst');
@@ -79,4 +92,22 @@ test('аналитики: охрана источников и smoke-фолбэ�
 test('аналитики: обработка кода 2 validate.mjs (битый JSON)', () => {
   const body = (n) => parse(readFileSync(join(AGENTS, `${n}.md`), 'utf8')).body;
   for (const n of ['techlead-analyst', 'tests-analyst']) assert.match(body(n), /Код 2/, n);
+});
+
+test('релизы: план — не дедлайн; «дата прошла, тикет открыт» не используется', () => {
+  const body = (n) => parse(readFileSync(join(AGENTS, `${n}.md`), 'utf8')).body;
+  const a = body('techlead-analyst');
+  assert.match(a, /не бывает «просроченным»/, 'правило конвейера');
+  assert.match(a, /открытые\*\* тикеты|статус ≠ `done_status`/, 'upcoming = открытые');
+  assert.match(a, /`stages` = `release\.statuses`/, 'стадии из конфига');
+  assert.doesNotMatch(a, /«дата прошла, тикет открыт» \(/, 'старая формулировка удалена');
+  const j = body('jira-collector');
+  assert.match(j, /план, а не дедлайн/, 'коллектор не отбрасывает открытые релизы');
+  assert.match(j, /release\.statuses/, 'стадии в конфиге');
+});
+
+test('цель спринта: коллектор отдаёт goal, аналитик переносит его как есть', () => {
+  const body = (n) => parse(readFileSync(join(AGENTS, `${n}.md`), 'utf8')).body;
+  assert.match(body('jira-collector'), /sprint: \{name, state, start, end, goal\}/);
+  assert.match(body('techlead-analyst'), /`goal` — цель спринта как есть/);
 });

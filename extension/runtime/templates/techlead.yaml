@@ -30,18 +30,46 @@ jira:
     blocked: [Заблокировано]
     ready_for_release: [Готово к выводу]
     done: [Готово, Закрыто]
+  # Лимиты сбора: max задач в issues[] и тикетов в releases[].
+  limits:
+    issues: 120
+    releases: 50
+  # Имя поля story points, если стандартное не отдаётся (например customfield_10016).
+  story_points_field: null
+  # Готовые JQL-срезы (необязательно). Заданы — сборщик только исполняет их;
+  # плейсхолдер <ACTIVE_SPRINT_ID> подставляется id активного спринта доски.
+  # Не заданы — сборщик строит запрос из project/statuses сам и пишет это в notes.
+  # Проверенный запрос храните здесь вместе с причудами сервера в комментарии рядом.
+  # queries:
+  #   sprint_issues: 'project = <KEY> AND sprint = <ACTIVE_SPRINT_ID> ORDER BY updated ASC'
+  #   outside_sprint: 'project = <KEY> AND sprint IS EMPTY AND status IN (В работе)'
+  #   releases: 'project = <KEY> AND issuetype = "Release 2.0" ORDER BY updated DESC'
+  #   ready_for_release: 'project = <KEY> AND status = "Готово к выводу"'
 
 # Релизы: тип задачи-релиза, окно поиска в днях (вперёд/назад), типы вне расчёта.
+# date_fields — поля с датой вывода в порядке приоритета (первое непустое побеждает);
+# добавьте своё кастомное поле один раз, когда проверите его имя.
+# statuses — стадии конвейера сверху вниз, done_status — релиз выведен. Плановая дата — это план,
+# а не дедлайн: открытый релиз не «просрочен», он стоит на одной из стадий.
 release:
   issue_type: "Release 2.0"
   ahead_days: 14
   back_days: 30
   exclude_types: [Аналитика, Техдолг]
+  date_fields: [duedate]
+  statuses:
+    - Формирование
+    - Утверждение ППСИ
+    - Готов к установке на ПРОМ
+    - Установка на ПРОМ
+  done_status: "Установлен на ПРОМ"
 
 # Bitbucket: репозитории команды и боты, чьи комментарии не считаются ревью.
 bitbucket:
   repositories: [ { project: <PROJ>, repo: <slug> } ]
   bots: [jenkins, sonar]
+  # Сколько последних событий активности читать на один PR (чем больше — тем дольше сбор).
+  activity_limit: 30
 
 # Jenkins: джобы; smoke — признак смоук-набора; max_idle_days — сколько дней джоба может не запускаться.
 jenkins:
