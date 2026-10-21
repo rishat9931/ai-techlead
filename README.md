@@ -92,17 +92,10 @@ gigacode extensions list    # в списке есть ai-techlead
 
 2. Выполните `/techlead-init`. Создаются `.techlead/`, `techlead.yaml`, `.gigacode/settings.json`, `.gitignore`, `.env.example`, `dashboard.html`, `reports/`. Существующие файлы без вашего «да» не перезаписываются.
 3. Заполните в `techlead.yaml` все `<...>`: состав команды с логинами Jira и Bitbucket, проект и доску Jira, репозитории Bitbucket, джобы Jenkins, проекты TestOps, пространство Confluence с инструкциями по MCP (`mcp.setup_docs`). Праздники и отпуска ведёт тимлид там же.
-4. Подключите MCP-серверы. В `.gigacode/settings.json` лежат шаблоны серверов `atlassian`, `bitbucket`, `jenkins`, `testops`. Команды их запуска возьмите из Confluence и подставьте в `command`/`args`. Токены в этот файл не пишите: там стоят ссылки `${JIRA_TOKEN}` и т. п.
-5. Задайте токены в `~/.zshrc` или в `.env` (он в `.gitignore`):
-
-   ```bash
-   export JIRA_TOKEN=...
-   export BITBUCKET_TOKEN=...
-   export JENKINS_TOKEN=...
-   export TESTOPS_TOKEN=...
-   ```
-
-6. Перезапустите `gigacode` в папке команды и выполните `/standup`. Сначала агент проверит подключения. Если какой-то MCP не подключён, он найдёт инструкцию в Confluence (пространство из `mcp.setup_docs`) и покажет шаги.
+4. Проверьте MCP-серверы `atlassian`, `bitbucket`, `jenkins`, `testops`. Если они уже подключены в вашем GigaCode (видны в `gigacode mcp list`), шаг пропустите. Если нет — подключите:
+   - в `.gigacode/settings.json` лежат их шаблоны; команды запуска возьмите из Confluence и подставьте в `command`/`args`;
+   - токены в файл не пишите: там стоят ссылки `${JIRA_TOKEN}`, `${BITBUCKET_TOKEN}`, `${JENKINS_TOKEN}`, `${TESTOPS_TOKEN}`; задайте эти переменные в `~/.zshrc` или в `.env` (он в `.gitignore`).
+5. Перезапустите `gigacode` в папке команды и выполните `/standup`. Сначала агент проверит подключения. Если какой-то MCP не подключён, он найдёт инструкцию в Confluence (пространство из `mcp.setup_docs`) и покажет шаги.
 
 Совет: заведите в Confluence страницы «Подключение MCP atlassian / bitbucket / jenkins / testops». Тогда preflight будет показывать их автоматически, а их id можно указать в `mcp.setup_docs.pages`.
 
