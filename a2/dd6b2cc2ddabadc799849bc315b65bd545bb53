@@ -1,0 +1,60 @@
+extension/agents/techlead-analyst.md
+  s_0044f9276659a3::t_12efbe5d0ba748 85-87,89-96
+  s_0044f9276659a3::t_6b90257b2b3672 139-142
+  s_0044f9276659a3::t_c8a8b4f14d3b46 70-71
+extension/runtime/dashboard.html
+  s_4ffd2d6bdf9c5e::t_df0bcc140b47c3 183,188
+  s_0044f9276659a3::t_408bf9b283f74d 65-73
+  s_0044f9276659a3::t_d80263caeae58d 422-423
+  s_0044f9276659a3::t_dbe20692808e2e 323,325-326
+  s_0044f9276659a3::t_4680f10fc29333 271,273-284,286
+  s_0044f9276659a3::t_a5317a8091d651 285
+  s_4ffd2d6bdf9c5e::t_876136ffc3aa26 8-12,14-64,74-121,123-125,130-142,148-149,151,160,164-167,169-181,186-187,192-194,197-199,203,212-223,227-257,260,262-270,272,287-291,293-301,304-305,307-310,312-314,316-321,327,334-349,353-354,358-364,368-386,388,402,434-435,442,446,448-450,455-456,459,462,466,468-471,474-477,481,484-495,498-507,509-519,522-534,536-539,541-545
+  s_4ffd2d6bdf9c5e::t_68cc4deae9ac42 436
+  s_0044f9276659a3::t_5579fcaf87f047 302-303
+  s_0044f9276659a3::t_623e8ca9d37e5e 324
+  s_4ffd2d6bdf9c5e::t_8e03b250d2fba9 182
+  s_0044f9276659a3::t_b67e92f41b2c1e 392-398,400-401,405-421,424-433,437-438
+  s_4ffd2d6bdf9c5e::t_b3303ab495f46d 403
+tests/fixtures/report.json
+  s_0044f9276659a3::t_807bb2bda7b44e 352-358,386-398
+  s_0044f9276659a3::t_53902a5f507034 34
+  s_0044f9276659a3::t_2282c49cb50811 399
+extension/qwen-extension.json
+  s_0044f9276659a3::t_afd8d464b7414c 3
+tests/dashboard.test.mjs
+  s_4ffd2d6bdf9c5e::t_60b3141a7ace74 242
+  s_4ffd2d6bdf9c5e::t_babddf814c5f19 59
+  s_4ffd2d6bdf9c5e::t_9f9d7eee1b96ae 24,54,60-63,73,80,98,113,116,148-152,154,159,161,165,167,172-176,181,188,200,205-206,210-211,216,222,224,227,238-241,243
+  s_0044f9276659a3::t_28c50f32e4259b 111,114-115,117-147
+extension/agents/jira-collector.md
+  s_0044f9276659a3::t_ad65d85646fcfb 33-35
+  s_0044f9276659a3::t_15da183ba3a3a7 65-71
+  s_0044f9276659a3::t_18413d9fbb5972 37-38
+extension/gigacode-extension.json
+  s_0044f9276659a3::t_872c0f8fe4bd06 3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5-gigacode.2",
+  "base_commit_sha": "a2dd6b2cc2ddabadc799849bc315b65bd545bb53",
+  "prompts": {},
+  "sessions": {
+    "s_0044f9276659a3": {
+      "agent_id": {
+        "tool": "gigacode_cli_agent",
+        "id": "cd7adab4-ae65-469d-96c1-a9c3541dd9f7",
+        "model": "openai::DeepSeek-V4.1-Flash-1017"
+      },
+      "human_author": "Альмухаметов Ришат Ракитович <rralmukhametov@sberbank.ru>"
+    },
+    "s_4ffd2d6bdf9c5e": {
+      "agent_id": {
+        "tool": "gigacode_cli_agent",
+        "id": "d8851dd7-563b-47fd-8366-f8d2db5b1a15",
+        "model": "openai::GLM-5.3-Flash"
+      },
+      "human_author": "Альмухаметов Ришат Ракитович <rralmukhametov@sberbank.ru>"
+    }
+  }
+}
