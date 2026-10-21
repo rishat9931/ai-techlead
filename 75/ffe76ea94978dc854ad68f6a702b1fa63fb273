@@ -1,0 +1,77 @@
+GIGACODE.md
+  s_c1f58875631355::t_3c36777ccf7842 1-12,14-81
+  s_16a26ff1fc7004::t_81aac329f7550b 13
+.gitignore
+  s_ae58d7a2e87103::t_9b3f9726277870 1-4
+  s_16a26ff1fc7004::t_bacc563764b2b1 9
+extension/runtime/VERSION
+  s_e58dc1de7c23b0::t_fc3bbe10dc6f38 1
+extension/agents/jira-collector.md
+  s_e58dc1de7c23b0::t_e8f54c1a85b902 3,6-7,15-18,22-28,30-69,71-77,80,86-87,89,95-96
+extension/gigacode-extension.json
+  s_e58dc1de7c23b0::t_4e3f9e8a458920 3
+extension/agents/techlead-analyst.md
+  s_e58dc1de7c23b0::t_4b1bcd1add102e 149
+  s_e58dc1de7c23b0::t_7108a7cb051e34 77
+  s_e58dc1de7c23b0::t_9a4890f1b4dcfd 60
+  s_e58dc1de7c23b0::t_222490ed5002f1 117
+  s_e58dc1de7c23b0::t_89157d530c3f4a 87
+  s_e58dc1de7c23b0::t_8ce212e4aba688 64
+  s_e58dc1de7c23b0::t_b29938afb5ee9a 109
+  s_e58dc1de7c23b0::t_8557238cb4ecf8 26-29
+  s_e58dc1de7c23b0::t_07fb7de18db79f 144
+  s_e58dc1de7c23b0::t_f5f73ac72a7450 130
+tests/templates.test.mjs
+  s_e58dc1de7c23b0::t_00ca6eff847483 36-45,49
+tests/agents.test.mjs
+  s_e58dc1de7c23b0::t_46ae8ae0db45b6 64-76
+extension/agents/bitbucket-collector.md
+  s_e58dc1de7c23b0::t_17ce84724ced0f 45-47
+  s_e58dc1de7c23b0::t_ff25fcf20f05ed 22
+extension/runtime/templates/techlead.yaml
+  s_e58dc1de7c23b0::t_a6e8243967463a 33-47,50-51,57,63-64
+extension/qwen-extension.json
+  s_e58dc1de7c23b0::t_58726108fc829a 3
+README.md
+  s_e58dc1de7c23b0::t_3b33f082c2033c 102-132
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5-gigacode.2",
+  "base_commit_sha": "75ffe76ea94978dc854ad68f6a702b1fa63fb273",
+  "prompts": {},
+  "sessions": {
+    "s_16a26ff1fc7004": {
+      "agent_id": {
+        "tool": "gigacode_cli_agent",
+        "id": "545fcc9f-8639-465d-830e-e4626daa72d6",
+        "model": "DeepSeek-V4.1-Flash-1017"
+      },
+      "human_author": "Альмухаметов Ришат Ракитович <rralmukhametov@sberbank.ru>"
+    },
+    "s_ae58d7a2e87103": {
+      "agent_id": {
+        "tool": "gigacode_cli_agent",
+        "id": "2573cb8f-be94-426c-a076-d061c45a4cdb",
+        "model": "GLM-5.3-Flash"
+      },
+      "human_author": "Альмухаметов Ришат Ракитович <rralmukhametov@sberbank.ru>"
+    },
+    "s_c1f58875631355": {
+      "agent_id": {
+        "tool": "gigacode_cli_agent",
+        "id": "9427d1ef-1c85-4b45-ae58-c0c92134cfb6",
+        "model": "GLM-5.3-Flash"
+      },
+      "human_author": "Альмухаметов Ришат Ракитович <rralmukhametov@sberbank.ru>"
+    },
+    "s_e58dc1de7c23b0": {
+      "agent_id": {
+        "tool": "gigacode_cli_agent",
+        "id": "2a0cf685-79c7-4f8f-b30e-b734f55f03e9",
+        "model": "GLM-5.3-Flash"
+      },
+      "human_author": "Альмухаметов Ришат Ракитович <rralmukhametov@sberbank.ru>"
+    }
+  }
+}
