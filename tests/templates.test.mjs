@@ -33,8 +33,18 @@ test('techlead.yaml: ключи верхнего уровня', () => {
   assert.deepEqual([...y.matchAll(/^([a-z_]+):/gm)].map((m) => m[1]), keys);
 });
 
+test('techlead.yaml: срезы po-cockpit (JQL-срезы закомментированы, лимиты и поля в конфиге)', () => {
+  const y = read('templates/techlead.yaml');
+  assert.ok(y.includes('queries:'), 'jira.queries упомянуты');
+  assert.match(y, /ACTIVE_SPRINT_ID/, 'плейсхолдер спринта');
+  assert.match(y, /^  limits:/m, 'jira.limits');
+  assert.match(y, /^  story_points_field:/m, 'jira.story_points_field');
+  assert.match(y, /date_fields: \[duedate\]/, 'release.date_fields');
+  assert.match(y, /activity_limit: 30/, 'bitbucket.activity_limit');
+});
+
 test('env.example и VERSION', () => {
   const e = read('templates/env.example');
   for (const v of ['JIRA_TOKEN', 'BITBUCKET_TOKEN', 'JENKINS_TOKEN', 'TESTOPS_TOKEN']) assert.match(e, new RegExp(`^${v}=$`, 'm'));
-  assert.equal(read('VERSION'), '0.1.0\n');
+  assert.equal(read('VERSION'), '0.2.0\n');
 });

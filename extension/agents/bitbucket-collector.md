@@ -19,6 +19,7 @@ description: Собирает открытые PR из репозиториев 
 
 ## Алгоритм
 1. Прочитай `techlead.yaml`: `bitbucket.repositories` (`{project, repo}`), `bitbucket.bots` (логины ботов),
+   `bitbucket.activity_limit` (сколько последних событий активности читать на PR; нет ключа — 30),
    `team.members[].bitbucket`.
 2. Для **каждого репозитория из конфига** (и только для них) получи открытые PR (state OPEN).
 3. Для каждого PR получи активность (activities: комментарии, апрувы, needs work, коммиты/rescope)
@@ -41,8 +42,9 @@ description: Собирает открытые PR из репозиториев 
    - `needs_work` — `true`, если хоть один ревьюер в статусе needs work;
    - `jira_key` — ключ вида `ABC-123` из заголовка или ветки PR, иначе `null`;
    - `url` — ссылка на PR.
-4. **Лимиты.** Не более 100 PR на репозиторий и 200 событий активности на PR (бери самые свежие).
-   Тексты комментариев и дифы не сохраняй. Упёрлись в лимит — `truncated: true` в `data`.
+4. **Лимиты.** Не более 100 PR на репозиторий; активность PR — `bitbucket.activity_limit` самых свежих
+   событий (нет ключа в конфиге — 30). Тексты комментариев и дифы не сохраняй.
+   Упёрлись в лимит — `truncated: true` в `data`.
 5. Логины авторов/ревьюеров, которых нет в `team.members[].bitbucket` и нет в `bots`, → `unknown_people[]`.
 6. **Запись.** `mkdir -p reports/raw/<дата>` и запиши `reports/raw/<дата>/bitbucket.json`:
    `{"source": "bitbucket", "collected_at": "<ISO 8601 сейчас>", "data": {"prs": [...], "unknown_people": [...], "repo_errors": [...]}}`.

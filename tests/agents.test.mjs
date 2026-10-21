@@ -61,6 +61,19 @@ test('контракты сборщиков: in_sprint в jira, job в testops',
   assert.match(body('testops-collector'), /launches\[\]`: `\{project, job,/);
 });
 
+test('jira-коллектор: JQL из конфига, updated вместо changelog, notes[]; аналитик — updated', () => {
+  const body = (n) => parse(readFileSync(join(AGENTS, `${n}.md`), 'utf8')).body;
+  const j = body('jira-collector');
+  assert.match(j, /jira\.queries/, 'срезы из конфига');
+  assert.match(j, /jira\.limits/, 'лимиты из конфига');
+  assert.match(j, /changelog не запрашивай|Запрашивать changelog/, 'без changelog');
+  assert.match(j, /notes\[\]/, 'заметки сбора');
+  assert.doesNotMatch(j, /last_status_change/);
+  const a = body('techlead-analyst');
+  assert.match(a, /`since` = `updated`/, 'workdays по updated');
+  assert.doesNotMatch(a, /last_status_change/);
+});
+
 test('аналитики: техлид — workdays.mjs, validate.mjs, meta.questions; тесты — схема и top_clusters', () => {
   const body = (n) => parse(readFileSync(join(AGENTS, `${n}.md`), 'utf8')).body;
   const a = body('techlead-analyst');
