@@ -30,9 +30,12 @@ MCP-сервер Jira и пишешь один файл `reports/raw/<дата>/
 1. Прочитай `techlead.yaml`: `jira.project`, `jira.board_id`, `jira.queries` (если заданы),
    `jira.limits` `{issues, releases}` (нет ключа — 120 и 50), `jira.story_points_field`,
    `jira.statuses`, `release.issue_type`, `release.ahead_days`, `release.back_days`,
-   `release.exclude_types`, `release.date_fields` (нет ключа — `[duedate]`), `team.members[].jira`.
+   `release.exclude_types`, `release.date_fields` (нет ключа — `[duedate]`),
+   `release.statuses` (стадии конвейера) и `release.done_status` (нет ключа — «Установлен на ПРОМ»),
+   `team.members[].jira`.
 2. **Спринт.** Найди активный спринт доски `board_id` — 1–2 вызова. Шапка
-   `sprint: {name, state, start, end}`. Активного нет → `sprint: null`, срез `sprint_issues`
+   `sprint: {name, state, start, end, goal}`. `goal` — цель спринта (поле `goal` активного спринта);
+   пустая или не отдаётся сервером → `null`. Активного нет → `sprint: null`, срез `sprint_issues`
    не выполняется.
 3. **Срезы.** На каждый срез — один поиск с пагинацией до лимита, запрашивая только нужные поля:
    summary, status, assignee, issuetype, created, updated, поле story points, issuelinks, duedate
@@ -59,11 +62,13 @@ MCP-сервер Jira и пишешь один файл `reports/raw/<дата>/
 6. **Release 2.0.** Из среза `releases`: `planned_date` — первое непустое значение полей
    `release.date_fields` по порядку; `closed_date` — дата резолюции или `null`.
    `{key, title, status, planned_date, closed_date, updated, links[], url}`.
-   В `releases[]` попадает тикет, если **либо** `planned_date` в окне [сегодня − `back_days`;
-   сегодня + `ahead_days`] (календарные дни, «сегодня» = входная дата), **либо** тикет открыт (не в
-   группе `done`) и `planned_date` < сегодня (просрочен). Открытые тикеты с датой дальше окна и
-   открытые без `planned_date` в выборку не берутся: последние пиши в `releases_undated[]`
-   (тот же формат, не более 20). Сортировка `releases[]` — по |`planned_date` − сегодня| по возрастанию.
+   Плановая дата — это **план, а не дедлайн**: пока тикет открыт, он не «просрочен», а находится
+   на стадии конвейера (`release.statuses` из конфига, выведен — `release.done_status`).
+   В `releases[]` попадает каждый тикет, который **либо** открыт (статус ≠ `release.done_status`),
+   **либо** закрыт с `planned_date` в окне [сегодня − `back_days`; сегодня], **либо** имеет
+   `planned_date` в окне [сегодня − `back_days`; сегодня + `ahead_days`].
+   Открытые тикеты без `planned_date` пиши в `releases_undated[]` (тот же формат, не более 20).
+   Сортировка `releases[]` — по `planned_date` по возрастанию (без даты — в конце).
 7. **Готовое без релиза.** Из среза `ready_for_release`: тип не из `release.exclude_types` и нет связи
    с тикетом типа `release.issue_type` → `ready_without_release[]` `{key, title, assignee, url}`.
 8. **Чужие люди.** Логины исполнителей из `issues[]`, которых нет в `team.members[].jira` →

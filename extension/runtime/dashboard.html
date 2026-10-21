@@ -4,175 +4,151 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Стендап команды</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@500;600&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg: #EEF1F5; --surface: #FFFFFF; --ink: #1B2430; --muted: #5B6675; --line: #D5DBE3;
-  --red: #C2362F; --red-bg: #FBEAE8; --amber: #A86A12; --amber-bg: #FBF1DE;
-  --green: #2E7A4F; --green-bg: #E5F2EA; --grey-bg: #E6E9EE; --link: #1F5FBF;
-  --sans: "IBM Plex Sans", -apple-system, "Segoe UI", Roboto, sans-serif;
-  --cond: "IBM Plex Sans Condensed", "IBM Plex Sans", "Arial Narrow", sans-serif;
+:root{
+  --bg:#f4f6fa;--card:#ffffff;--ink:#17203a;--muted:#5b6579;--line:#e3e8f0;
+  --accent:#1a4fd6;--accent-soft:#e8eeff;--ok:#188042;--ok-soft:#e3f4ea;
+  --warn:#b26a00;--warn-soft:#fff3dd;--bad:#c5221f;--bad-soft:#fdebea;
+  --radius:12px;--shadow:0 1px 3px rgba(23,32,58,.08),0 4px 14px rgba(23,32,58,.05);
 }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #12171E; --surface: #1A212B; --ink: #E4E8EE; --muted: #97A1AF; --line: #2C3542;
-    --red: #EF6A61; --red-bg: #3A1E1D; --amber: #E0A54A; --amber-bg: #372A15;
-    --green: #5DBB86; --green-bg: #17301F; --grey-bg: #252D38; --link: #7FAEF5;
-  }
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);padding:20px;line-height:1.45}
+.wrap{max-width:1220px;margin:0 auto}
+header.top{display:flex;flex-wrap:wrap;align-items:baseline;gap:10px 16px;margin-bottom:14px}
+header.top h1{font-size:22px;letter-spacing:.2px}
+header.top .sub{color:var(--muted);font-size:13px}
+.pill{display:inline-block;font-size:11.5px;font-weight:600;padding:3px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.pill.live{background:var(--ok-soft);color:var(--ok)}
+.pill.blocked{background:var(--bad-soft);color:var(--bad)}
+.pill.red{background:var(--bad-soft);color:var(--bad)}
+.pill.yellow{background:var(--warn-soft);color:var(--warn)}
+.pill.green{background:var(--ok-soft);color:var(--ok)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0 18px}
+.tab{border:1px solid var(--line);background:var(--card);color:var(--muted);padding:7px 14px;border-radius:999px;font-size:13.5px;cursor:pointer;font-weight:600}
+.tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:16px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow)}
+.kpi .k{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+.kpi .v{font-size:21px;font-weight:700;margin-top:4px}
+.kpi .s{font-size:12px;color:var(--muted);margin-top:2px}
+.kpi.bad .v{color:var(--bad)}.kpi.ok .v{color:var(--ok)}.kpi.warn .v{color:var(--warn)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow);margin-bottom:14px}
+.card h2{font-size:15.5px;margin-bottom:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.goal{font-size:14px;background:var(--accent-soft);border-left:4px solid var(--accent);border-radius:8px;padding:10px 14px;white-space:pre-line}
+.progress{height:10px;border-radius:999px;background:#eef1f7;overflow:hidden;margin:10px 0 6px;position:relative}
+.progress .done{position:absolute;top:0;bottom:0;left:0;background:var(--ok)}
+.progress .mark{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--warn)}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--muted);flex-wrap:wrap}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
+td{padding:8px 10px;border-bottom:1px solid #eef1f7;vertical-align:top}
+tr:last-child td{border-bottom:none}
+.tblscroll{overflow-x:auto}
+tr.row-bad td{background:var(--bad-soft)}
+tr.row-warn td{background:var(--warn-soft)}
+.num{text-align:right}
+.bdg{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px;white-space:nowrap}
+.bdg.done{background:var(--ok-soft);color:var(--ok)}
+.bdg.wip{background:var(--accent-soft);color:var(--accent)}
+.bdg.todo{background:#eef1f7;color:var(--muted)}
+.bdg.bad{background:var(--bad-soft);color:var(--bad)}
+.bdg.warn{background:var(--warn-soft);color:var(--warn)}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;align-items:start}
+.rel{padding:10px 0;border-top:1px solid #eef1f7}
+.rel:first-of-type{border-top:0}
+.rel .head{display:flex;justify-content:space-between;gap:8px;align-items:baseline;flex-wrap:wrap}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+.stagecol{background:#f8fafd;border:1px solid var(--line);border-radius:10px;padding:10px;min-width:0}
+.stagecol h4{font-size:12px;color:var(--muted);margin-bottom:8px;display:flex;justify-content:space-between;gap:6px;align-items:center;line-height:1.3}
+.stagecol h4 span{white-space:nowrap}
+.relcard{background:#fff;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;padding:8px 10px;margin-bottom:8px;font-size:12.5px;overflow-wrap:anywhere}
+.relcard:last-child{margin-bottom:0}
+.relcard .k{font-weight:600;white-space:nowrap}
+.relcard small{color:var(--muted);display:block;margin-top:3px;font-size:11.5px}
+.relcard.final{border-left-color:var(--ok)}
+.note{font-size:12.5px;color:var(--muted);margin-top:8px}
+.banner{border-radius:10px;padding:12px 14px;font-size:13.5px;margin-bottom:14px}
+.banner.bad{background:var(--bad-soft);border:1px solid #f3c2bf;color:#7f1d1a}
+.banner.warn{background:var(--warn-soft);border:1px solid #ecd9ae;color:#6b4c00}
+.banner.info{background:var(--accent-soft);border:1px solid #c9d8ff;color:#12379b}
+ul.clean{list-style:none}
+ul.clean li{padding:6px 0;border-bottom:1px dashed #eef1f7;font-size:13px}
+ul.clean li:last-child{border-bottom:none}
+.timeline .t-item{display:flex;gap:12px;padding:8px 0;border-bottom:1px dashed #eef1f7;font-size:13px;align-items:flex-start}
+.timeline .t-item:last-child{border-bottom:none}
+.t-date{min-width:86px;color:var(--muted);font-size:12px;padding-top:1px}
+footer{color:var(--muted);font-size:12px;margin-top:18px;display:flex;gap:14px;flex-wrap:wrap}
+.count{font-size:11px;background:#eef1f7;border-radius:999px;padding:1px 8px;color:var(--muted)}
+.sources{display:flex;gap:14px;flex-wrap:wrap;font-size:13px}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:1px}
+.dot.ok{background:var(--ok)}.dot.bad{background:var(--bad)}.dot.partial{background:var(--warn)}
+select,.btn{font:13px -apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:6px 10px}
+.btn{cursor:pointer}
+.btn:hover{border-color:var(--muted)}
+.btn.copied{border-color:var(--ok);color:var(--ok)}
+.recg{display:grid;grid-template-columns:170px 1fr 120px;gap:12px;padding:10px 0;border-top:1px solid #eef1f7;font-size:13px}
+.recg:first-of-type{border-top:0}
+.recg .why{grid-column:2/4;color:var(--muted);font-size:12.5px;margin-top:-6px}
+.sig{font:12.5px/1.4 ui-monospace,"SF Mono",Menlo,monospace;word-break:break-word}
+.cluster{border-top:1px solid #eef1f7;padding:14px 0}
+.cluster:first-of-type{border-top:0}
+.cluster summary{cursor:pointer;display:flex;gap:12px;align-items:flex-start;justify-content:space-between;list-style:none}
+.cluster summary::-webkit-details-marker{display:none}
+.cluster .body{margin-top:10px;padding-left:14px;border-left:2px solid var(--line)}
+pre{background:#f2f4f9;padding:10px 12px;border-radius:8px;overflow-x:auto;font-size:12px;margin:8px 0}
+.bugdraft{background:var(--bg);padding:10px 12px;border-radius:8px;margin-top:8px;font-size:13px}
+.cov{display:grid;grid-template-columns:110px 1fr 70px;gap:12px;align-items:center;padding:6px 0;font-size:13px}
+.cov .bar{height:8px;border-radius:999px;background:#eef1f7;overflow:hidden;position:relative}
+.cov .bar i{position:absolute;inset:0 auto 0 0;background:var(--cv)}
+.cov .bar s{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--warn)}
+.issues{color:var(--warn);font-size:12.5px;margin-top:4px}
+.task{display:flex;gap:10px;align-items:baseline;padding:2px 0;font-size:13px}
+.task .key{font-weight:600;white-space:nowrap}
+.task .t{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.empty-work{color:var(--bad);font-weight:600;font-size:13px}
+.muted{color:var(--muted)}
+.small{font-size:12.5px}
+[hidden]{display:none!important}
+@media (max-width:760px){
+  body{padding:12px}
+  .recg{grid-template-columns:1fr;gap:2px}
+  .recg .why{grid-column:1;margin-top:0}
+  .tblscroll{overflow-x:auto}
 }
-:root[data-theme="dark"] {
-  --bg: #12171E; --surface: #1A212B; --ink: #E4E8EE; --muted: #97A1AF; --line: #2C3542;
-  --red: #EF6A61; --red-bg: #3A1E1D; --amber: #E0A54A; --amber-bg: #372A15;
-  --green: #5DBB86; --green-bg: #17301F; --grey-bg: #252D38; --link: #7FAEF5;
-}
-* { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; }
-body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 var(--sans); font-variant-numeric: tabular-nums; }
-a { color: var(--link); text-decoration: none; }
-a:hover { text-decoration: underline; }
-:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; border-radius: 2px; }
-.wrap { max-width: 1320px; margin: 0 auto; padding: 0 24px 64px; }
-h2 { font: 600 17px/1.3 var(--sans); margin: 0 0 12px; }
-.muted { color: var(--muted); }
-.small { font-size: 13px; }
-
-/* Шапка: вердикт */
-.verdict { border-left: 10px solid var(--status); background: var(--surface); padding: 22px 28px 20px; margin: 0 -24px 0; }
-.verdict-row { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
-.verdict h1 { font: 600 clamp(22px, 2.6vw, 32px)/1.2 var(--sans); margin: 0; max-width: 30ch; letter-spacing: -0.01em; }
-.verdict .level { font: 600 15px/1 var(--cond); color: var(--status); margin-bottom: 10px; display: block; }
-.meta { text-align: right; color: var(--muted); font-size: 13px; }
-.meta button { margin-top: 6px; }
-.sprint { display: flex; flex-wrap: wrap; gap: 8px 28px; margin-top: 18px; align-items: center; }
-.sprint b { font-weight: 600; }
-.bar { position: relative; width: 220px; height: 8px; background: var(--grey-bg); border-radius: 4px; overflow: hidden; }
-.bar i { position: absolute; inset: 0 auto 0 0; background: var(--ink); border-radius: 4px; }
-.bar s { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--amber); text-decoration: none; }
-.sources { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; }
-.dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; vertical-align: 1px; }
-.dot.ok { background: var(--green); } .dot.bad { background: var(--red); } .dot.partial { background: var(--amber); }
-
-.banner { background: var(--amber-bg); color: var(--ink); border-left: 4px solid var(--amber); padding: 10px 16px; margin: 16px 0 0; font-size: 14px; }
-
-/* Вкладки и фильтр */
-.toolbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin: 22px 0 18px; border-bottom: 1px solid var(--line); }
-.tabs { display: flex; gap: 4px; }
-.tabs button { font: 500 15px var(--sans); color: var(--muted); background: none; border: 0; border-bottom: 3px solid transparent; padding: 10px 14px; cursor: pointer; }
-.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); }
-select, .btn { font: 14px var(--sans); color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; }
-.btn { cursor: pointer; }
-.btn:hover { border-color: var(--muted); }
-.btn.copied { border-color: var(--green); color: var(--green); }
-
-/* Раскладка стендапа */
-.grid { display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 32px; align-items: start; }
-.panel { background: var(--surface); border-radius: 8px; padding: 18px 20px; }
-section + section { margin-top: 28px; }
-
-/* Доска людей */
-.people { display: grid; gap: 1px; background: var(--line); border-radius: 8px; overflow: hidden; }
-.person { background: var(--surface); display: grid; grid-template-columns: 210px minmax(0, 1fr) 180px; gap: 16px; padding: 14px 18px; border-left: 5px solid var(--pl, transparent); }
-.person[data-level="red"] { --pl: var(--red); }
-.person[data-level="yellow"] { --pl: var(--amber); }
-.person[data-level="absent"] { --pl: var(--line); color: var(--muted); }
-.person .who b { display: block; font-weight: 600; }
-.task { display: flex; gap: 10px; align-items: baseline; padding: 2px 0; }
-.task .key { font: 500 13px var(--cond); white-space: nowrap; }
-.task .t { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.task .st { font-size: 12px; color: var(--muted); white-space: nowrap; }
-.age { font-size: 12px; white-space: nowrap; padding: 0 6px; border-radius: 4px; }
-.age.warn { background: var(--amber-bg); color: var(--amber); }
-.age.bad { background: var(--red-bg); color: var(--red); }
-.flags { font-size: 13px; }
-.flags div { color: var(--fc, var(--muted)); }
-.person[data-level="red"] .flags div { --fc: var(--red); }
-.person[data-level="yellow"] .flags div { --fc: var(--amber); }
-.empty-work { color: var(--red); font-weight: 500; }
-
-/* Сигналы */
-.signal { padding: 12px 0; border-top: 1px solid var(--line); display: grid; grid-template-columns: 6px 1fr; gap: 12px; }
-.signal:first-of-type { border-top: 0; padding-top: 0; }
-.signal .mark { border-radius: 3px; background: var(--sc); }
-.signal[data-level="red"] { --sc: var(--red); }
-.signal[data-level="yellow"] { --sc: var(--amber); }
-.signal p { margin: 0 0 6px; }
-.signal .row { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
-
-/* Таблицы */
-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-th { text-align: left; font-weight: 500; color: var(--muted); font-size: 13px; padding: 0 10px 8px 0; border-bottom: 1px solid var(--line); }
-td { padding: 9px 10px 9px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
-tr:last-child td { border-bottom: 0; }
-.num { text-align: right; }
-.pill { font-size: 12px; padding: 1px 7px; border-radius: 10px; white-space: nowrap; }
-.pill.red { background: var(--red-bg); color: var(--red); }
-.pill.amber { background: var(--amber-bg); color: var(--amber); }
-.pill.green { background: var(--green-bg); color: var(--green); }
-.pill.grey { background: var(--grey-bg); color: var(--muted); }
-
-.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px; }
-.release { padding: 10px 0; border-top: 1px solid var(--line); }
-.release:first-of-type { border-top: 0; }
-.release .head { display: flex; justify-content: space-between; gap: 8px; }
-.issues { color: var(--amber); font-size: 13px; }
-.release .head .pill { align-self: flex-start; }
-
-.cov { display: grid; grid-template-columns: 110px 1fr 70px; gap: 12px; align-items: center; padding: 6px 0; }
-.cov .bar { width: 100%; }
-.cov .bar i { background: var(--cv); }
-
-.recs { list-style: none; margin: 0; padding: 0; }
-.recs li { display: grid; grid-template-columns: 180px 1fr 140px; gap: 16px; padding: 10px 0; border-top: 1px solid var(--line); }
-.recs li:first-child { border-top: 0; }
-.recs .why { grid-column: 2 / 4; color: var(--muted); font-size: 13px; margin-top: -6px; }
-
-/* Вкладка тестов */
-.cluster { border-top: 1px solid var(--line); padding: 14px 0; }
-.cluster:first-of-type { border-top: 0; }
-.cluster summary { cursor: pointer; display: grid; grid-template-columns: 1fr auto; gap: 12px; list-style: none; }
-.cluster summary::-webkit-details-marker { display: none; }
-.sig { font: 13px/1.4 ui-monospace, "SF Mono", Menlo, monospace; word-break: break-word; }
-.cluster .body { margin-top: 10px; padding-left: 14px; border-left: 2px solid var(--line); }
-pre { background: var(--grey-bg); padding: 10px 12px; border-radius: 6px; overflow-x: auto; font-size: 12px; margin: 8px 0; }
-.bugdraft { background: var(--bg); padding: 10px 12px; border-radius: 6px; margin-top: 8px; font-size: 14px; }
-
-[hidden] { display: none !important; }
-
-@media (max-width: 1100px) { .grid { grid-template-columns: minmax(0, 1fr); } }
-@media (max-width: 760px) {
-  .wrap { padding: 0 16px 48px; }
-  .verdict { margin: 0 -16px; padding: 18px 16px; }
-  .meta { text-align: left; }
-  .person { grid-template-columns: minmax(0, 1fr); gap: 6px; }
-  .two { grid-template-columns: minmax(0, 1fr); }
-  .verdict h1 { font-size: 22px; }
-  .toolbar { border-bottom: 0; }
-  .tabs { width: 100%; border-bottom: 1px solid var(--line); }
-  .recs li { grid-template-columns: 1fr; gap: 2px; }
-  .recs .why { grid-column: 1; margin-top: 0; }
-  .table-scroll { overflow-x: auto; }
-  .bar { width: 140px; }
-}
-@media (prefers-reduced-motion: no-preference) {
-  .verdict { animation: in .35s ease-out; }
-  @keyframes in { from { opacity: 0; transform: translateY(-6px); } }
+@media (prefers-reduced-motion: no-preference){
+  .view{animation:in .25s ease-out}
+  @keyframes in{from{opacity:0;transform:translateY(-4px)}}
 }
 </style>
 </head>
 <body>
-<div class="wrap" id="app"></div>
+<div class="wrap" id="app">
+  <header class="top">
+    <h1 id="ptitle">Стендап</h1>
+    <span class="pill" id="levelPill" hidden></span>
+    <span class="pill" id="sprintPill" hidden></span>
+    <span class="sub" id="psub"></span>
+    <span style="flex:1"></span>
+    <span class="sub" id="collected"></span>
+  </header>
+  <nav class="tabs" id="tabs" hidden></nav>
+  <main id="content"></main>
+  <footer id="foot"></footer>
+</div>
 
 <script src="reports/latest.js"></script>
 <script>
 (function () {
   const R = window.REPORT, T = window.TESTS_REPORT || null;
-  const app = document.getElementById('app');
-  if (!R) {
-    app.innerHTML = '<div class="panel" style="margin-top:40px"><h2>Отчёта ещё нет — запустите /standup</h2><p>Запустите <b>/standup</b> в GigaCode из папки команды — страница обновится после генерации <code>reports/latest.js</code>.</p></div>';
-    return;
-  }
+  const content = document.getElementById('content');
+  const foot = document.getElementById('foot');
 
+  // ---------- утилиты ----------
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const fmtDate = d => d ? new Date(d).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' }) : '—';
   const plural = (n, a, b, c) => { const m = n % 10, h = n % 100; return m === 1 && h !== 11 ? a : m >= 2 && m <= 4 && (h < 10 || h >= 20) ? b : c; };
@@ -181,36 +157,50 @@ pre { background: var(--grey-bg); padding: 10px 12px; border-radius: 6px; overfl
   const safeUrl = u => (typeof u === 'string' && /^https?:\/\//i.test(u.trim()) ? u.trim() : '');
   const link = (u, inner, attrs = '') => { const h = safeUrl(u); return h ? `<a ${attrs}href="${esc(h)}">${inner}</a>` : `<span ${attrs}>${inner}</span>`; };
   const isNum = n => typeof n === 'number' && isFinite(n);
-  const LEVEL = { red: ['Красный', 'var(--red)'], yellow: ['Жёлтый', 'var(--amber)'], green: ['Зелёный', 'var(--green)'] };
+  const LEVEL = { red: ['Красный', 'red'], yellow: ['Жёлтый', 'yellow'], green: ['Зелёный', 'green'] };
   const ROLE = { dev: 'разработка', qa: 'тестирование', aqa: 'автотесты', analyst: 'аналитика' };
   const SRC = { jira: 'Jira', bitbucket: 'Bitbucket', jenkins: 'Jenkins', testops: 'TestOps' };
   const JOB_STATE = {
-    ok: ['работает', 'green'],
-    failed_before_tests: ['упала до тестов', 'red'],
-    hung: ['зависла', 'red'],
-    idle: ['давно не запускалась', 'amber']
+    ok: ['работает', 'done'],
+    failed_before_tests: ['упала до тестов', 'bad'],
+    hung: ['зависла', 'bad'],
+    idle: ['давно не запускалась', 'warn']
   };
-  R.meta = R.meta || {};
-  const SOURCES = R.meta.sources || {};
+  const kpi = (k, v, s, cls) => `<div class="kpi ${cls || ''}"><div class="k">${esc(k)}</div><div class="v">${esc(v)}</div><div class="s">${esc(s)}</div></div>`;
+  const card = (title, body) => `<section class="card"><h2>${esc(title)}</h2>${body}</section>`;
+
+  // статусы свободной формы -> бейдж
+  function bdg(status) {
+    const s = String(status || '');
+    let cls = 'todo';
+    if (/установ|сделан|закрыт|реализован/i.test(s)) cls = 'done';
+    else if (/установка|в работе|на исправлении|разработка|формирование|утверждение/i.test(s)) cls = 'wip';
+    return `<span class="bdg ${cls}">${esc(s || '—')}</span>`;
+  }
+
+  // ---------- метаданные источников ----------
+  if (R) R.meta = R.meta || {};
+  const SOURCES = (R && R.meta.sources) || {};
   const srcDown = k => SOURCES[k] === 'unavailable';
-  // пустое состояние: источник недоступен или данных просто нет
   const emptyNote = (src, emptyText) => srcDown(src)
-    ? `<p class="small muted">Данные недоступны — ${esc(SRC[src] || src)}: источник недоступен.</p>`
-    : `<p class="small muted">${emptyText}</p>`;
-  const TH = Object.assign({ pr_stale_days: 1, pr_critical_days: 2, task_stale_days: 2 }, (R.meta && R.meta.thresholds) || {});
+    ? `<p class="note">Данные недоступны — ${esc(SRC[src] || src)}: источник недоступен.</p>`
+    : `<p class="note">${emptyText}</p>`;
+  const TH = Object.assign({ pr_stale_days: 1, pr_critical_days: 2, task_stale_days: 2 }, (R && R.meta && R.meta.thresholds) || {});
 
   let personFilter = '';
   try { personFilter = localStorage.getItem('standup.person') || ''; } catch (e) {}
+  let tab = 'overview';
+  try { tab = localStorage.getItem('standup.tab') || 'overview'; } catch (e) {}
+  if (tab === 'standup') tab = 'overview'; // прежнее имя вкладки
 
   function ageBadge(n, isWarn, isBad) {
-    if (n == null) return '';
-    const cls = isBad(n) ? 'bad' : isWarn(n) ? 'warn' : '';
-    return `<span class="age ${cls}">${n === 0 ? 'сегодня' : days(n)}</span>`;
+    if (!isNum(n)) return '';
+    const cls = isBad(n) ? 'bad' : isWarn(n) ? 'warn' : 'todo';
+    return `<span class="bdg ${cls}">${n === 0 ? 'сегодня' : days(n)}</span>`;
   }
-
   function personLevel(p) {
     if (p.absent) return 'absent';
-    const sig = R.signals.filter(s => s.owner === p.name);
+    const sig = (R.signals || []).filter(s => s.owner === p.name);
     if (sig.some(s => s.level === 'red')) return 'red';
     if (sig.some(s => s.level === 'yellow') || (p.flags || []).length) return 'yellow';
     return 'ok';
@@ -218,250 +208,346 @@ pre { background: var(--grey-bg); padding: 10px 12px; border-radius: 6px; overfl
 
   // ---------- шапка ----------
   function header() {
-    const [label, color] = LEVEL[R.status.level];
     const s = R.sprint || {};
-    const gen = new Date(R.meta.generated_at);
-    const sources = Object.entries(SOURCES).map(([k, v]) => {
+    const level = LEVEL[R.status.level] || ['', ''];
+    document.getElementById('ptitle').textContent = `Стендап · ${R.meta.team || 'команда'}`;
+    const lp = document.getElementById('levelPill');
+    lp.hidden = false; lp.textContent = `${level[0]} статус`; lp.className = `pill ${level[1]}`;
+    const sp = document.getElementById('sprintPill');
+    sp.hidden = false;
+    if (srcDown('jira')) { sp.textContent = 'Данные недоступны — Jira'; sp.className = 'pill blocked'; }
+    else if (!!(s.name || isNum(s.day))) {
+      sp.textContent = `● ${s.name || 'Спринт идёт'}${isNum(s.day) && isNum(s.days_total) ? ` · день ${s.day}/${s.days_total}` : ''}`;
+      sp.className = 'pill live';
+    } else { sp.textContent = 'Нет активного спринта'; sp.className = 'pill blocked'; }
+    const dots = Object.entries(SOURCES).map(([k, v]) => {
       const st = v === 'ok' ? ['ok', ''] : v === 'partial' ? ['partial', ' — частично'] : ['bad', ' — недоступен'];
       return `<span><span class="dot ${st[0]}"></span>${esc(SRC[k] || k)}${st[1]}</span>`;
     }).join('');
-    const hints = (R.meta.setup_hints || []).map(h => {
-      const doc = safeUrl(h.doc_url);
-      return `<div class="banner"><b>${esc(SRC[h.name] || h.name)} не подключён</b>: ${esc(h.reason)}. Данные по нему не собраны.${doc ? ` <a href="${esc(doc)}" target="_blank" rel="noopener">Как подключить</a>` : ''}</div>`;
-    }).join('');
-    const hasSprint = !!(s.name || isNum(s.days_total) || isNum(s.done_pct));
-    const timePct = isNum(s.day) && isNum(s.days_total) && s.days_total > 0 ? Math.round(s.day / s.days_total * 100) : null;
-    const scope = s.scope_added || [];
-    const sprintInfo = hasSprint ? `
-        <span><b>${esc(s.name || 'Спринт')}</b>${isNum(s.day) && isNum(s.days_total) ? ` · день ${s.day} из ${s.days_total}` : ''}${s.start || s.end ? ` · ${fmtDate(s.start)}–${fmtDate(s.end)}` : ''}</span>
-        ${isNum(s.done_pct) ? `<span title="Чёрная полоса — закрыто SP, жёлтая отметка — прошедшее время спринта">
-          <span class="bar" style="display:inline-block;vertical-align:middle"><i style="width:${s.done_pct}%"></i>${timePct != null ? `<s style="left:${timePct}%"></s>` : ''}</span>
-          <b style="margin-left:8px">${s.done_pct}%</b>${isNum(s.sp_done) && isNum(s.sp_total) ? ` <span class="muted">(${s.sp_done} из ${s.sp_total} SP)</span>` : ''}
-        </span>` : ''}
-        ${s.risk ? `<span class="muted">${esc(s.risk)}</span>` : ''}`
-      : `<span class="muted">${srcDown('jira') ? 'Данные недоступны — Jira: источник недоступен' : 'Нет активного спринта'}</span>`;
-    return `
-    <header class="verdict" style="--status:${color}">
-      <div class="verdict-row">
-        <div>
-          <span class="level">${label} статус · ${esc(R.meta.team)}</span>
-          <h1>${esc(R.status.summary)}</h1>
-        </div>
-        <div class="meta">
-          Собрано ${gen.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })} в ${gen.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}<br>
-          ${esc(R.meta.generated_by)}<br>
-          <button class="btn" id="theme" type="button">Сменить тему</button>
-        </div>
-      </div>
-      <div class="sprint">${sprintInfo}
-        <span class="sources">${sources}</span>
-      </div>
-      ${scope.length ? `<div class="small muted" style="margin-top:8px">Добавлено после старта: ${scope.map(x => `${link(x.url, esc(x.key))} ${esc(x.title)}`).join(', ')}</div>` : ''}
-    </header>
-    ${hints}`;
+    document.getElementById('psub').innerHTML = `<span class="sources">${dots}</span>`;
+    const g = R.meta.generated_at ? new Date(R.meta.generated_at) : null;
+    document.getElementById('collected').textContent =
+      g && !isNaN(g) ? `собрано ${g.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })} в ${g.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}${R.meta.generated_by ? ` · ${R.meta.generated_by}` : ''}` : (R.meta.generated_by || '');
   }
 
-  // ---------- кто чем занят ----------
-  function people() {
-    const list = R.people.filter(p => !personFilter || p.name === personFilter);
-    return `<section><h2>Кто чем занят</h2><div class="people">${list.map(p => {
-      const lvl = personLevel(p);
+  // ---------- обзор ----------
+  function viewOverview() {
+    const sig = R.signals || [];
+    const red = sig.filter(s => s.level === 'red').length, yellow = sig.length - red;
+    const stalePrs = (R.prs || []).filter(p => isNum(p.idle_days) && p.idle_days >= TH.pr_critical_days).length;
+    const badJobs = (R.tests.jobs || []).filter(j => j.state === 'failed_before_tests' || j.state === 'hung' || j.state === 'idle').length;
+    const badLaunches = (R.tests.launches || []).filter(l => (l.failed > 0) || (l.broken > 0)).length;
+    const cov = ((R.coverage || {}).projects || []).filter(c => isNum(c.pct));
+    const covAvg = cov.length ? Math.round(cov.reduce((a, c) => a + c.pct, 0) / cov.length) : null;
+
+    const s = R.sprint || {};
+    const hasSprint = !!(s.name || isNum(s.day));
+    const sprintSub = hasSprint
+      ? [isNum(s.day) && isNum(s.days_total) ? `день ${s.day} из ${s.days_total}` : '', isNum(s.done_pct) ? `закрыто ${s.done_pct}%` : '', s.start || s.end ? `${fmtDate(s.start)}–${fmtDate(s.end)}` : ''].filter(Boolean).join(' · ')
+      : (srcDown('jira') ? 'Jira недоступна' : 'Нет активного спринта');
+
+    const [lvl] = LEVEL[R.status.level] || [''];
+    let k = kpi('Статус', lvl, R.status.summary, R.status.level === 'red' ? 'bad' : R.status.level === 'yellow' ? 'warn' : 'ok');
+    k += kpi('Спринт', hasSprint ? (s.name || 'идёт') : 'нет', sprintSub, s.risk ? 'warn' : '');
+    k += kpi('Требует внимания', sig.length ? `${red} / ${yellow}` : '0', red ? 'красных сигналов — сначала они' : 'жёлтые — по ходу дня', red ? 'bad' : sig.length ? 'warn' : 'ok');
+    k += kpi('Зависшие PR', stalePrs, `${(R.prs || []).length} открытых · без движения ≥ ${TH.pr_critical_days} дн.`, stalePrs ? 'bad' : 'ok');
+    k += kpi('Проблемные джобы', badJobs || '0', 'упали / зависли / давно не запускались', badJobs ? 'warn' : 'ok');
+    k += kpi('Красные лончи', badLaunches || '0', 'упавшие тесты в последнем прогоне', badLaunches ? 'warn' : 'ok');
+    k += kpi('Покрытие (среднее)', covAvg == null ? '—' : `${covAvg}%`, cov.length ? `${cov.length} проектов` : 'нет данных', '');
+
+    const hints = (R.meta.setup_hints || []).map(h => {
+      const doc = safeUrl(h.doc_url);
+      return `<div class="banner warn"><b>${esc(SRC[h.name] || h.name)} не подключён</b>: ${esc(h.reason)}. Данные по нему не собраны.${doc ? ` <a href="${esc(doc)}" target="_blank" rel="noopener">Как подключить</a>` : ''}</div>`;
+    }).join('');
+    const cls = R.status.level === 'red' ? 'bad' : R.status.level === 'yellow' ? 'warn' : 'info';
+    const statusBanner = `<div class="banner ${cls}"><b>${esc(lvl)} статус:</b> ${esc(R.status.summary)}</div>`;
+    const riskBanner = s.risk ? `<div class="banner warn"><b>Риск спринта:</b> ${esc(s.risk)}</div>` : '';
+    const ready = (R.releases.ready_without_release || []);
+    const readyBanner = ready.length ? `<div class="banner warn">Готово к выводу, но не в релизе: ${ready.map(x => `${link(x.url, esc(x.key))} ${esc(x.title)}${x.assignee ? ` (${esc(x.assignee)})` : ''}`).join(', ')}</div>` : '';
+
+    const recs = (R.recommendations || []).map(r => `
+      <div class="recg"><b>${esc(r.who)}</b><span>${esc(r.what)}</span><span class="muted">${esc(r.when)}</span><span class="why">${esc(r.why)}</span></div>`).join('');
+    return `${hints}${statusBanner}${riskBanner}${readyBanner}<div class="kpis">${k}</div>` +
+      goalCard() +
+      card('Что делать', recs ? recs : '<p class="note">Рекомендаций нет.</p>');
+  }
+
+  // цель спринта — отдельной карточкой на обзоре (как в PO Cockpit)
+  function goalCard() {
+    const s = R.sprint || {};
+    if (srcDown('jira')) return '';
+    const goal = (s.goal || '').trim();
+    const meta = [s.name, isNum(s.day) && isNum(s.days_total) ? `день ${s.day} из ${s.days_total}` : '',
+      isNum(s.done_pct) ? `закрыто ${s.done_pct}%` : '', s.start || s.end ? `${fmtDate(s.start)}–${fmtDate(s.end)}` : '']
+      .filter(Boolean).join(' · ');
+    let body = goal ? `<div class="goal">${esc(goal)}</div>` : '<p class="note">Цель спринта в Jira не заполнена — сформулируйте на планировании.</p>';
+    if (s.risk) body += `<div class="banner warn" style="margin:10px 0 0">${esc(s.risk)}</div>`;
+    if (meta) body += `<p class="note">${esc(meta)}</p>`;
+    return card('Цель спринта', body);
+  }
+
+  // ---------- спринт и команда ----------
+  function viewTeam() {
+    const s = R.sprint || {};
+    const scope = s.scope_added || [];
+    const hasSprint = !!(s.name || isNum(s.day));
+
+    let sprintBody;
+    if (srcDown('jira')) sprintBody = '<p class="note">Данные недоступны — Jira: источник недоступен.</p>';
+    else if (!hasSprint) sprintBody = '<p class="note">Нет активного спринта.</p>';
+    else {
+      const timePct = isNum(s.day) && isNum(s.days_total) && s.days_total > 0 ? Math.min(100, Math.round(s.day / s.days_total * 100)) : null;
+      const done = isNum(s.done_pct) ? Math.min(100, s.done_pct) : 0;
+      sprintBody = `
+        ${s.name ? `<div class="note" style="margin:0 0 8px">Спринт <b>${esc(s.name)}</b>${isNum(s.day) && isNum(s.days_total) ? ` · день ${s.day} из ${s.days_total}` : ''}${s.start || s.end ? ` · ${fmtDate(s.start)}–${fmtDate(s.end)}` : ''}</div>` : ''}
+        ${(s.goal || '').trim() ? `<div class="goal">${esc(s.goal)}</div>` : '<p class="note">Цель спринта в Jira не заполнена.</p>'}
+        <div class="progress" title="Зелёная полоса — закрыто SP, жёлтая отметка — прошедшее время спринта">
+          <div class="done" style="width:${done}%"></div>${timePct != null ? `<div class="mark" style="left:${timePct}%"></div>` : ''}
+        </div>
+        <div class="legend">
+          <span><i style="background:var(--ok)"></i>Закрыто ${isNum(s.done_pct) ? `${s.done_pct}%` : '—'}${isNum(s.sp_done) && isNum(s.sp_total) ? ` (${s.sp_done} из ${s.sp_total} SP)` : ''}</span>
+          ${isNum(s.day) && isNum(s.days_total) ? `<span>день ${s.day} из ${s.days_total}</span>` : ''}
+          ${s.start || s.end ? `<span>${fmtDate(s.start)}–${fmtDate(s.end)}</span>` : ''}
+        </div>
+        ${scope.length ? `<div class="note">Добавлено после старта: ${scope.map(x => `${link(x.url, esc(x.key))} ${esc(x.title)}`).join(', ')}</div>` : ''}
+        ${s.risk ? `<div class="note"><b style="color:var(--warn)">Риск:</b> ${esc(s.risk)}</div>` : ''}`;
+    }
+
+    const persons = R.people.filter(p => !personFilter || p.name === personFilter);
+    const rows = persons.map(p => {
+      const trCls = !p.active.length && !p.absent ? ' class="row-bad"' : p.absent ? ' class="row-warn"' : '';
+      const status = p.absent ? `<span class="bdg todo">${esc(p.absent.reason || 'отсутствует')} до ${fmtDate(p.absent.to)}</span>`
+        : p.active.length ? `<span class="bdg wip">${p.active.length} в работе</span>`
+        : '<span class="bdg bad">нет задач в работе</span>';
       const tasks = p.active.length
-        ? p.active.map(t => `<div class="task">${link(t.url, esc(t.key), 'class="key" ')}<span class="t" title="${esc(t.title)}">${esc(t.title)}</span><span class="st">${esc(t.status)}</span>${p.absent ? `<span class="age">${days(t.days_no_move)}</span>` : ageBadge(t.days_no_move, n => n >= TH.task_stale_days, n => n > TH.task_stale_days)}</div>`).join('')
-        : `<div class="empty-work">Нет задач в работе</div>`;
+        ? p.active.map(t => {
+            const note = [t.status && t.status !== 'В работе' ? t.status : '', isNum(t.days_no_move) && t.days_no_move > 0 ? days(t.days_no_move) : 'сегодня'].filter(Boolean).join(' · ');
+            return `<div class="task">${link(t.url, esc(t.key), 'class="key" ')}<span class="t" title="${esc(t.title)}">${esc(t.title)}</span>${p.absent ? `<span class="bdg todo">${days(t.days_no_move)}</span>` : (isNum(t.days_no_move) && t.days_no_move >= TH.task_stale_days ? `<span class="bdg warn">${esc(note || 'без обновлений')}</span>` : '')}</div>`;
+          }).join('')
+        : '<span class="empty-work">Нет задач в работе</span>';
       const prs = (p.prs || []).map(x => link(x.url, `${esc(x.repo)}#${esc(x.id)}`)).join(', ');
       const flags = [
-        p.absent ? `${esc(p.absent.reason)} до ${fmtDate(p.absent.to)}` : '',
         ...(p.blockers || []).map(b => `Блокер: ${esc(b && typeof b === 'object' ? b.text : b)}`),
         ...(p.flags || []).map(f => String(f ?? ''))
           .filter(f => !(p.absent && f.startsWith('в отпуске')) && !(!p.active.length && f === 'нет задач в работе'))
           .map(esc)
-      ].filter(Boolean).map(f => `<div>${f}</div>`).join('');
-      const own = R.signals.filter(s => s.owner === p.name).length;
-      const fallback = own ? `<div>${own} ${plural(own, 'сигнал', 'сигнала', 'сигналов')} в «Требует внимания»</div>` : p.active.length ? '<span class="small muted">Всё в порядке</span>' : '';
-      return `<div class="person" data-level="${lvl}">
-        <div class="who"><b>${esc(p.name)}</b><span class="small muted">${esc(ROLE[p.role] || p.role)}${prs ? ` · PR ${prs}` : ''}</span></div>
-        <div>${tasks}</div>
-        <div class="flags">${flags || fallback}</div>
-      </div>`;
-    }).join('')}</div></section>`;
+      ].filter(Boolean);
+      const own = (R.signals || []).filter(x => x.owner === p.name).length;
+      const fallback = own ? `<div>${own} ${plural(own, 'сигнал', 'сигнала', 'сигналов')} в «Требует внимания»</div>` : (p.active.length ? '<span class="muted">Всё в порядке</span>' : '');
+      return `<tr${trCls}>
+        <td><b>${esc(p.name)}</b><div class="small muted">${esc(ROLE[p.role] || p.role)}${prs ? ` · PR ${prs}` : ''}</div></td>
+        <td>${status}</td><td>${tasks}</td>
+        <td class="small muted">${flags.join('<br>') || fallback}</td></tr>`;
+    }).join('');
+
+    return card('Спринт', sprintBody) +
+      card('Кто чем занят', `<div style="margin-bottom:8px"><label class="small muted">Сотрудник
+        <select id="person"><option value="">Вся команда</option>${R.people.map(p => `<option ${p.name === personFilter ? 'selected' : ''}>${esc(p.name)}</option>`).join('')}</select></label></div>
+        <div class="tblscroll"><table>
+        <tr><th>Участник</th><th>Статус</th><th>Задачи в работе</th><th>Блокеры и флаги</th></tr>
+        ${rows}</table></div>`) +
+      signalsCard();
   }
 
   // ---------- сигналы ----------
-  function signals() {
-    const list = R.signals
+  function signalsCard() {
+    const list = (R.signals || [])
       .filter(s => !personFilter || s.owner === personFilter)
       .sort((a, b) => (a.level === b.level ? (b.age_days || 0) - (a.age_days || 0) : a.level === 'red' ? -1 : 1));
-    const body = list.length ? list.map(s => `
-      <div class="signal" data-level="${s.level}">
-        <span class="mark"></span>
-        <div>
-          <p>${esc(s.text)}</p>
-          <div class="row"><span>${esc(s.owner)}${safeUrl(s.url) ? ` · <a href="${esc(safeUrl(s.url))}">открыть</a>` : ''}</span>
-          <button class="btn copy" type="button" data-text="${esc(s.reminder)}">Скопировать напоминание</button></div>
-        </div>
-      </div>`).join('') : '<p class="muted">Сигналов нет — можно идти работать.</p>';
     const red = list.filter(s => s.level === 'red').length;
-    return `<aside class="panel"><h2>Требует внимания <span class="muted small">${red} красных, ${list.length - red} жёлтых</span></h2>${body}</aside>`;
+    const body = list.length ? `<div class="timeline">${list.map(s => `
+      <div class="t-item"><div class="t-date"><span class="bdg ${s.level === 'red' ? 'bad' : 'warn'}">${s.level === 'red' ? 'красный' : 'жёлтый'}</span>${isNum(s.age_days) ? `<div>${days(s.age_days)}</div>` : ''}</div>
+        <div><b>${esc(s.owner)}</b> — ${esc(s.text)}
+          <div style="margin-top:4px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">${safeUrl(s.url) ? `<a href="${esc(safeUrl(s.url))}">открыть</a>` : ''}
+          <button class="btn copy" type="button" data-text="${esc(s.reminder)}">Скопировать напоминание</button></div>
+        </div></div>`).join('')}</div>` : '<p class="note">Сигналов нет — можно идти работать.</p>';
+    return `<section class="card"><h2>Требует внимания <span class="count">${red} красных, ${list.length - red} жёлтых</span></h2>${body}</section>`;
   }
 
   // ---------- PR ----------
-  function prs() {
-    const list = R.prs.filter(p => !personFilter || p.author === personFilter || (p.reviewers || []).includes(personFilter))
-      .sort((a, b) => (b.idle_days || 0) - (a.idle_days || 0));
-    const build = { ok: ['green', 'сборка ок'], failed: ['red', 'сборка упала'], running: ['grey', 'собирается'] };
-    if (!list.length) return `<section><h2>Pull request'ы</h2><p class="muted">Открытых PR нет.</p></section>`;
-    return `<section><h2>Pull request'ы</h2><div class="panel table-scroll"><table>
+  function viewPrs() {
+    const list = (R.prs || []).slice().sort((a, b) => (b.idle_days || 0) - (a.idle_days || 0));
+    const build = { ok: ['done', 'сборка ок'], failed: ['bad', 'сборка упала'], running: ['todo', 'собирается'] };
+    const srcNote = srcDown('bitbucket')
+      ? '<div class="banner bad">PR не собраны — Bitbucket: источник недоступен.</div>'
+      : (SOURCES.bitbucket === 'partial' ? '<div class="banner warn">PR собраны частично — Bitbucket ответил не по всем репозиториям.</div>' : '');
+    if (!list.length) return srcNote + card('Pull request’ы', '<p class="note">Открытых PR нет.</p>');
+    const rows = list.map(p => {
+      const turn = p.whose_turn === 'reviewers' ? `ревьюеры: ${(p.reviewers || []).map(esc).join(', ')}`
+        : p.whose_turn === 'author' ? `автор: ${esc(p.author)}` : '<span class="muted">неясно</span>';
+      const [bc, bt] = build[p.build] || ['todo', esc(p.build || 'нет данных')];
+      return `<tr>
+        <td>${link(p.url, `${esc(p.repo)}#${esc(p.id)}`)} ${esc(p.title)}<div class="small muted">${esc(p.author)}${p.jira_key ? ` · ${esc(p.jira_key)}` : ' · <span style="color:var(--warn)">нет Jira-ключа</span>'}</div></td>
+        <td>${turn}</td>
+        <td>${ageBadge(p.idle_days, n => n >= TH.pr_stale_days, n => n >= TH.pr_critical_days)}</td>
+        <td class="small muted">${esc(p.last_human_activity)}</td>
+        <td><span class="bdg ${bc}">${bt}</span></td></tr>`;
+    }).join('');
+    return srcNote + card('Pull request’ы', `<div class="tblscroll"><table>
       <tr><th>PR</th><th>Чей ход</th><th>Без движения</th><th>Последнее действие</th><th>Сборка</th></tr>
-      ${list.map(p => {
-        const turn = p.whose_turn === 'reviewers' ? `ревьюеры: ${(p.reviewers || []).map(esc).join(', ')}`
-          : p.whose_turn === 'author' ? `автор: ${esc(p.author)}` : '<span class="muted">неясно</span>';
-        const [bc, bt] = build[p.build] || ['grey', esc(p.build || 'нет данных')];
-        return `<tr>
-          <td>${link(p.url, `${esc(p.repo)}#${esc(p.id)}`)} ${esc(p.title)}<div class="small muted">${esc(p.author)}${p.jira_key ? ` · ${esc(p.jira_key)}` : ' · <span style="color:var(--amber)">нет Jira-ключа</span>'}</div></td>
-          <td>${turn}</td>
-          <td>${ageBadge(p.idle_days, n => n >= TH.pr_stale_days, n => n >= TH.pr_critical_days)}</td>
-          <td class="small muted">${esc(p.last_human_activity)}</td>
-          <td><span class="pill ${bc}">${bt}</span></td></tr>`;
-      }).join('')}</table></div></section>`;
+      ${rows}</table></div>`);
   }
 
   // ---------- релизы ----------
-  function releases() {
-    const rel = R.releases || {};
-    const item = r => {
-      const issues = r.issues || [], linked = r.linked || [];
-      return `<div class="release"><div class="head"><span>${link(r.url, esc(r.key))} ${esc(r.title)}</span><span class="pill ${issues.length ? 'amber' : 'grey'}">${esc(r.status)}</span></div>
-      <div class="small muted">План ${fmtDate(r.planned_date)}${r.closed_date !== undefined ? ` · факт ${r.closed_date ? fmtDate(r.closed_date) : '—'}` : ''} · связано: ${linked.length ? linked.map(esc).join(', ') : '<span style="color:var(--amber)">ничего</span>'}</div>
+  // Открытый релиз не «просрочен», а стоит на стадии конвейера: план — это план, а не дедлайн.
+  function relCard(r) {
+    const linked = r.linked || [], issues = (r.issues || []).filter(x => x !== 'нет связанных задач');
+    const meta = [r.planned_date ? `план ${fmtDate(r.planned_date)}` : '',
+      isNum(r.days_no_move) ? `без движения ${days(r.days_no_move)}` : ''].filter(Boolean).join(' · ');
+    return `<div class="relcard"><div><span class="k">${link(r.url, esc(r.key))}</span> ${esc(r.title)}</div>
+      <small>${meta || 'даты нет'}${linked.length ? '' : ' · ничего не связано'}</small>
       ${issues.length ? `<div class="issues">${issues.map(esc).join('; ')}</div>` : ''}</div>`;
-    };
-    const none = txt => srcDown('jira') ? emptyNote('jira', '') : `<p class="muted">${txt}</p>`;
-    const ready = rel.ready_without_release || [];
+  }
+
+  function viewReleases() {
+    const rel = R.releases || {};
     const type = R.meta.release_type ? ` <span class="muted small">${esc(R.meta.release_type)}</span>` : '';
-    return `<section><h2>Релизы${type}</h2><div class="panel">
-      <div class="two"><div><h2 class="small muted" style="font-weight:500">Ближайшие</h2>${(rel.upcoming || []).map(item).join('') || none('Нет запланированных.')}</div>
-      <div><h2 class="small muted" style="font-weight:500">Прошедшие за 30 дней</h2>${(rel.past || []).map(item).join('') || none('Нет.')}</div></div>
-      ${ready.length ? `<div class="banner" style="margin-top:14px">Готово к выводу, но не в релизе: ${ready.map(x => `${link(x.url, esc(x.key))} ${esc(x.title)} (${esc(x.assignee)})`).join(', ')}</div>` : ''}
-    </div></section>`;
+    const open = rel.upcoming || [], done = rel.past || [];
+    const stages = rel.stages || [];
+    const doneStatus = rel.done_status || '';
+
+    // конвейер: одна колонка на стадию из конфига + колонка «вне конвейера», если статус не совпал
+    let pipeline;
+    if (srcDown('jira')) pipeline = '<p class="note">Данные недоступны — Jira: источник недоступен.</p>';
+    else if (!stages.length) pipeline = emptyNote('jira', 'Стадии релиза не заданы в techlead.yaml (release.statuses).');
+    else {
+      const outside = open.filter(r => !stages.includes(r.status));
+      const cols = [...stages, ...(outside.length ? [null] : [])].map((stage, i) => {
+        const items = stage === null ? outside : open.filter(r => r.status === stage);
+        const head = stage === null ? 'статус вне конвейера' : stage;
+        return `<div class="stagecol"><h4>${esc(head)}<span class="count">${items.length}</span></h4>` +
+          (items.map(relCard).join('') || '<div class="note">—</div>') + '</div>';
+      }).join('');
+      pipeline = `<div class="cols">${cols}</div>`;
+      const moved = open.filter(r => r.planned_date);
+      if (moved.length) pipeline += `<p class="note">Плановая дата у ${moved.length} уже прошла — это не «просрочка»: релиз открыт и стоит на своей стадии. Смотрите, сколько он там не двигается.</p>`;
+    }
+
+    const doneRows = done.map(r => `<tr><td>${link(r.url, esc(r.key))}</td><td>${esc(r.title)}</td>
+      <td>${r.planned_date ? fmtDate(r.planned_date) : '—'}</td><td>${r.closed_date ? fmtDate(r.closed_date) : '—'}</td>
+      <td>${bdg(r.status)}</td></tr>`).join('');
+    const doneCard = `<section class="card"><h2>Выведено на ПРОМ${doneStatus ? ` <span class="muted small">${esc(doneStatus)}</span>` : ''} <span class="count">${done.length}</span></h2>` +
+      (doneRows
+        ? `<div class="tblscroll"><table><tr><th>Релиз</th><th>Название</th><th>План</th><th>Факт</th><th>Статус</th></tr>${doneRows}</table></div>`
+        : emptyNote('jira', 'Нет.')) + '</section>';
+
+    const ready = (rel.ready_without_release || []);
+    const readyBanner = ready.length ? `<div class="banner warn">Готово к выводу, но не в релизе: ${ready.map(x => `${link(x.url, esc(x.key))} ${esc(x.title)}${x.assignee ? ` (${esc(x.assignee)})` : ''}`).join(', ')}</div>` : '';
+    // заголовок собирается вручную: внутри тип релиза как html-спан
+    return `<section class="card"><h2>Конвейер релизов${type} <span class="count">${open.length} в работе</span></h2>${pipeline}</section>` +
+      doneCard + readyBanner;
   }
 
   // ---------- автотесты ----------
-  function tests() {
+  function viewAutotests() {
     const t = R.tests || {};
     const jenkinsDown = SOURCES.jenkins === 'unavailable';
     const jobs = jenkinsDown
-      ? '<p class="small muted">Состояние джоб Jenkins неизвестно — источник недоступен.</p>'
+      ? '<p class="note">Состояние джоб Jenkins неизвестно — источник недоступен.</p>'
       : (t.jobs || []).map(j => {
-          const [label, color] = JOB_STATE[j.state] || [j.state, 'grey'];
-          return `<div>${link(j.url, esc(j.name))} <span class="pill ${color}">${esc(label)}</span>${j.last_run ? ` <span class="small muted">${fmtDate(j.last_run)}</span>` : ''}</div>`;
-        }).join('') || '<p class="small muted">Джоб нет.</p>';
+          const [label, cls] = JOB_STATE[j.state] || [j.state, 'todo'];
+          return `<li>${link(j.url, esc(j.name))} <span class="bdg ${cls}">${esc(label)}</span>${j.last_run ? ` <span class="muted small">${fmtDate(j.last_run)}</span>` : ''}</li>`;
+        }).join('') || '<p class="note">Джоб нет.</p>';
     const n = v => (isNum(v) ? v : '—');
     const launches = (t.launches || []).map(l => {
       const bad = (l.failed || 0) + (l.broken || 0);
       return `<tr><td>${link(l.url, esc(l.name))}<div class="small muted">${esc(l.project)}</div></td>
-        <td class="num">${n(l.passed)}</td><td class="num" style="color:${bad ? 'var(--red)' : 'inherit'}">${n(l.failed)}</td><td class="num">${n(l.broken)}</td><td class="num muted">${n(l.skipped)}</td>
-        <td><span class="pill ${bad ? 'red' : 'green'}">${bad ? 'красный' : 'зелёный'}</span></td></tr>`;
+        <td class="num">${n(l.passed)}</td><td class="num" style="color:${bad ? 'var(--bad)' : 'inherit'}">${n(l.failed)}</td><td class="num">${n(l.broken)}</td><td class="num muted">${n(l.skipped)}</td>
+        <td><span class="bdg ${bad ? 'bad' : 'done'}">${bad ? 'красный' : 'зелёный'}</span></td></tr>`;
     }).join('');
     const fails = (t.failures || []).map(f => `<tr><td><span class="sig">${esc(f.test)}</span></td>
-      <td>${f.is_new ? '<span class="pill red">новое</span>' : ''} ${f.flaky_rate ? `<span class="pill amber">flaky ${Math.round(f.flaky_rate * 100)}%</span>` : ''}</td>
+      <td>${f.is_new ? '<span class="bdg bad">новое</span>' : ''} ${f.flaky_rate ? `<span class="bdg warn">flaky ${Math.round(f.flaky_rate * 100)}%</span>` : ''}</td>
       <td class="small">${f.short_cause ? esc(f.short_cause) : '<span class="muted">не разобрано — запустите /tests</span>'}</td></tr>`).join('');
     const cov = ((R.coverage || {}).projects || []).map(c => {
-      const color = c.pct < c.target ? 'var(--amber)' : 'var(--green)';
+      const color = c.pct < c.target ? 'var(--warn)' : 'var(--ok)';
       const d = c.delta_prev > 0 ? `+${c.delta_prev}` : c.delta_prev;
       return `<div class="cov"><span>${esc(c.name)}</span>
         <span class="bar" title="${c.automated} из ${c.total} кейсов, цель ${c.target}%"><i style="width:${c.pct}%;--cv:${color}"></i><s style="left:${c.target}%"></s></span>
-        <span><b>${c.pct}%</b> <span class="small" style="color:${c.delta_prev < 0 ? 'var(--red)' : 'var(--green)'}">${d}</span></span></div>`;
+        <span><b>${c.pct}%</b> <span class="small" style="color:${c.delta_prev < 0 ? 'var(--bad)' : 'var(--ok)'}">${d}</span></span></div>`;
     }).join('');
-    return `<section><h2>Автотесты</h2><div class="panel">
-      ${launches ? `<div class="table-scroll"><table><tr><th>Последний лонч</th><th class="num">Прошло</th><th class="num">Упало</th><th class="num">Broken</th><th class="num">Пропущено</th><th></th></tr>${launches}</table></div>` : emptyNote('testops', 'Лончей нет.')}
-      <h2 style="margin-top:20px">Падения</h2>
-      ${fails ? `<div class="table-scroll"><table>${fails}</table></div>` : emptyNote('testops', 'Падений нет.')}
-      <p class="small muted">Полный разбор с группировкой по причинам — на вкладке «Тесты»${T ? ` (обновлён ${new Date(T.meta.generated_at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })})` : ''}.</p>
-      <div class="two" style="margin-top:12px">
-        <div><h2>Покрытие автотестами</h2>${cov || emptyNote('testops', 'Данных о покрытии нет.')}<p class="small muted">Жёлтая отметка — целевое покрытие.</p></div>
-        <div><h2>Джобы Jenkins</h2>${jobs}</div>
-      </div>
-    </div></section>`;
+    return card('Лончи TestOps', launches ? `<div class="tblscroll"><table><tr><th>Последний лонч</th><th class="num">Прошло</th><th class="num">Упало</th><th class="num">Broken</th><th class="num">Пропущено</th><th></th></tr>${launches}</table></div>` : emptyNote('testops', 'Лончей нет.')) +
+      card('Падения', fails ? `<div class="tblscroll"><table>${fails}</table></div>` : emptyNote('testops', 'Падений нет.')) +
+      card('Покрытие автотестами', cov || emptyNote('testops', 'Данных о покрытии нет.')) +
+      card('Джобы Jenkins', `<ul class="clean">${jobs}</ul>`);
   }
 
-  // ---------- рекомендации ----------
-  function recs() {
-    const list = R.recommendations.filter(r => !personFilter || r.who.includes(personFilter));
-    return `<section><h2>Что делать</h2><div class="panel"><ol class="recs">${list.map(r => `
-      <li><b>${esc(r.who)}</b><span>${esc(r.what)}</span><span class="muted">${esc(r.when)}</span><span class="why">${esc(r.why)}</span></li>`).join('') || '<li class="muted">Рекомендаций нет.</li>'}</ol></div></section>`;
-  }
-
-  // ---------- вкладка «Тесты» ----------
-  function testsTab() {
-    if (!T) return `<div class="panel"><h2>Разбора падений ещё нет</h2><p>Запустите <b>/tests</b> — агент сгруппирует падения по причинам и сохранит разбор сюда.</p></div>`;
-    const cat = { 'окружение': 'grey', 'баг продукта': 'red', 'flaky': 'amber', 'ошибка теста': 'amber', 'данные': 'grey' };
+  // ---------- разбор падений ----------
+  function viewTests() {
+    if (!T) return card('Разбор падений', '<p class="note">Разбора падений ещё нет. Запустите <b>/tests</b> — агент сгруппирует падения по причинам и сохранит разбор сюда.</p>');
+    const cat = { 'окружение': 'todo', 'баг продукта': 'bad', 'flaky': 'warn', 'ошибка теста': 'warn', 'данные': 'todo' };
     const clusters = T.clusters || [], tm = T.meta || {};
     const total = clusters.reduce((a, c) => a + (c.count || 0), 0);
     const notes = (tm.notes || []).length ? `<ul class="small muted" style="margin:0 0 12px;padding-left:18px">${tm.notes.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : '';
-    const bug = b => !b ? null
+    const bug = b => !b ? ''
       : typeof b === 'string' ? `<span class="small muted">${esc(b)}</span>`
       : link(b.url, esc(b.key || 'баг'));
-    return `<div class="panel">
-      <h2>Разбор падений <span class="muted small">${total} ${plural(total, 'падение', 'падения', 'падений')} в ${clusters.length} ${plural(clusters.length, 'группе', 'группах', 'группах')} · ${(tm.launches || []).map(esc).join(', ')} · ${esc(tm.generated_by)}</span></h2>
-      ${notes}
-      ${clusters.map((c, i) => `<details class="cluster" ${i === 0 ? 'open' : ''}>
-        <summary><div><span class="pill ${cat[c.category] || 'grey'}">${esc(c.category)}</span> <b>${c.count} ${plural(c.count, 'тест', 'теста', 'тестов')}</b><div class="sig" style="margin-top:4px">${esc(c.signature)}</div></div>
-          <div>${bug(c.jira_bug) || (c.suggested_bug ? '<span class="pill amber">бага нет</span>' : '')}</div></summary>
-        <div class="body">
-          <p style="margin:0 0 8px">${esc(c.cause)}</p>
-          ${c.jenkins_log_excerpt ? `<pre>${esc(c.jenkins_log_excerpt)}</pre>` : ''}
-          ${c.suggested_bug ? `<div class="bugdraft"><b>Черновик бага:</b> ${esc(c.suggested_bug.title)}<div class="small muted">${esc(c.suggested_bug.description)}</div>
-            <button class="btn copy" style="margin-top:8px" type="button" data-text="${esc(c.suggested_bug.title + '\n\n' + c.suggested_bug.description)}">Скопировать черновик</button></div>` : ''}
-          <div class="small" style="margin-top:8px">${(c.tests || []).map(t => `<div>${link(t.url, esc(t.name), 'class="sig" ')}</div>`).join('')}</div>
-        </div></details>`).join('')}
-    </div>`;
+    const items = clusters.map((c, i) => `<details class="cluster" ${i === 0 ? 'open' : ''}>
+      <summary><div><span class="bdg ${cat[c.category] || 'todo'}">${esc(c.category)}</span> <b>${c.count} ${plural(c.count, 'тест', 'теста', 'тестов')}</b><div class="sig" style="margin-top:4px">${esc(c.signature)}</div></div>
+        <div>${bug(c.jira_bug) || (c.suggested_bug ? '<span class="bdg warn">бага нет</span>' : '')}</div></summary>
+      <div class="body">
+        <p style="margin:0 0 8px">${esc(c.cause)}</p>
+        ${c.jenkins_log_excerpt ? `<pre>${esc(c.jenkins_log_excerpt)}</pre>` : ''}
+        ${c.suggested_bug ? `<div class="bugdraft"><b>Черновик бага:</b> ${esc(c.suggested_bug.title)}<div class="small muted">${esc(c.suggested_bug.description)}</div>
+          <button class="btn copy" style="margin-top:8px" type="button" data-text="${esc(c.suggested_bug.title + '\n\n' + c.suggested_bug.description)}">Скопировать черновик</button></div>` : ''}
+        <div class="small" style="margin-top:8px">${(c.tests || []).map(t => `<div>${link(t.url, esc(t.name), 'class="sig" ')}</div>`).join('')}</div>
+      </div></details>`).join('');
+    const head = `<h2>Разбор падений <span class="count">${total} ${plural(total, 'падение', 'падения', 'падений')} · ${clusters.length} ${plural(clusters.length, 'группа', 'группы', 'групп')}</span>${(tm.launches || []).length ? ` <span class="small muted">${(tm.launches || []).map(esc).join(', ')} · ${esc(tm.generated_by)}</span>` : ''}</h2>`;
+    return `<section class="card">${head}${notes}${items || '<p class="note">Кластеров нет.</p>'}</section>`;
   }
 
-  // ---------- сборка ----------
-  let tab = 'standup';
-  try { tab = localStorage.getItem('standup.tab') || 'standup'; } catch (e) {}
+  // ---------- сборка страницы ----------
+  const TABS = [
+    ['overview', 'Обзор'],
+    ['team', 'Спринт и команда'],
+    ['prs', 'PR'],
+    ['releases', 'Релизы'],
+    ['autotests', 'Автотесты'],
+    ['tests', 'Разбор падений']
+  ];
+  const VIEWS = { overview: viewOverview, team: viewTeam, prs: viewPrs, releases: viewReleases, autotests: viewAutotests, tests: viewTests };
 
-  function render() {
-    const opts = R.people.map(p => `<option ${p.name === personFilter ? 'selected' : ''}>${esc(p.name)}</option>`).join('');
-    app.innerHTML = header() + `
-      <div class="toolbar">
-        <div class="tabs" role="tablist">
-          <button role="tab" aria-selected="${tab === 'standup'}" data-tab="standup">Стендап</button>
-          <button role="tab" aria-selected="${tab === 'tests'}" data-tab="tests">Тесты</button>
-        </div>
-        ${tab === 'standup' ? `<label class="small muted">Сотрудник <select id="person"><option value="">Вся команда</option>${opts}</select></label>` : ''}
-      </div>
-      ${tab === 'standup'
-        ? `<div class="grid"><div>${people()}${prs()}${releases()}${tests()}${recs()}</div>${signals()}</div>`
-        : testsTab()}`;
+  function initFrame() {
+    const tabs = document.getElementById('tabs');
+    tabs.hidden = false;
+    tabs.innerHTML = TABS.map(([id, label]) => `<button class="tab${id === tab ? ' active' : ''}" data-v="${id}" aria-selected="${id === tab}">${label}</button>`).join('');
+    tabs.addEventListener('click', e => {
+      const b = e.target.closest('.tab'); if (!b) return;
+      tab = b.dataset.v;
+      tabs.querySelectorAll('.tab').forEach(t => { t.classList.toggle('active', t === b); t.setAttribute('aria-selected', t === b); });
+      try { localStorage.setItem('standup.tab', tab); } catch (x) {}
+      content.innerHTML = `<section class="view active">${(VIEWS[tab] || viewOverview)()}</section>`;
+    });
   }
 
-  app.addEventListener('click', e => {
-    const tb = e.target.closest('[data-tab]');
-    if (tb) { tab = tb.dataset.tab; try { localStorage.setItem('standup.tab', tab); } catch (x) {} render(); return; }
+  if (!R) {
+    content.innerHTML = '<section class="card"><h2>Отчёта ещё нет — запустите /standup</h2><p>Запустите <b>/standup</b> в GigaCode из папки команды — страница обновится после генерации <code>reports/latest.js</code>.</p></section>';
+  } else {
+    header();
+    initFrame();
+    const gen = R.meta.generated_at ? new Date(R.meta.generated_at) : null;
+    foot.innerHTML = `<span>Снимок: <code>reports/latest.js</code>${gen && !isNaN(gen) ? ` от ${gen.toLocaleString('ru-RU')}` : ''}</span>` +
+      `<span>Фильтры и вкладка запоминаются локально</span>`;
+    content.innerHTML = `<section class="view active">${(VIEWS[tab] || viewOverview)()}</section>`;
+  }
+
+  // копирование и фильтр по сотруднику
+  document.getElementById('app').addEventListener('click', e => {
     const cp = e.target.closest('.copy');
-    if (cp) {
-      const done = () => { const old = cp.textContent; cp.textContent = 'Скопировано'; cp.classList.add('copied'); setTimeout(() => { cp.textContent = old; cp.classList.remove('copied'); }, 1500); };
-      if (navigator.clipboard) navigator.clipboard.writeText(cp.dataset.text).then(done, () => fallbackCopy(cp.dataset.text, done));
-      else fallbackCopy(cp.dataset.text, done);
-      return;
-    }
-    if (e.target.id === 'theme') {
-      const root = document.documentElement;
-      const dark = root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
-      root.dataset.theme = dark ? 'light' : 'dark';
-      try { localStorage.setItem('standup.theme', root.dataset.theme); } catch (x) {}
-    }
+    if (!cp) return;
+    const done = () => { const old = cp.textContent; cp.textContent = 'Скопировано'; cp.classList.add('copied'); setTimeout(() => { cp.textContent = old; cp.classList.remove('copied'); }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(cp.dataset.text).then(done, () => fallbackCopy(cp.dataset.text, done));
+    else fallbackCopy(cp.dataset.text, done);
   });
-  app.addEventListener('change', e => {
-    if (e.target.id === 'person') { personFilter = e.target.value; try { localStorage.setItem('standup.person', personFilter); } catch (x) {} render(); }
+  document.getElementById('app').addEventListener('change', e => {
+    if (e.target.id !== 'person') return;
+    personFilter = e.target.value;
+    try { localStorage.setItem('standup.person', personFilter); } catch (x) {}
+    content.innerHTML = `<section class="view active">${(VIEWS[tab] || viewOverview)()}</section>`;
   });
   function fallbackCopy(text, done) {
     const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select();
     try { document.execCommand('copy'); done(); } catch (x) {} ta.remove();
   }
-  try { const th = localStorage.getItem('standup.theme'); if (th) document.documentElement.dataset.theme = th; } catch (e) {}
-  render();
 })();
 </script>
 </body>

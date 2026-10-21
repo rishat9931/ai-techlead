@@ -40,11 +40,13 @@ test('techlead.yaml: срезы po-cockpit (JQL-срезы закомменти�
   assert.match(y, /^  limits:/m, 'jira.limits');
   assert.match(y, /^  story_points_field:/m, 'jira.story_points_field');
   assert.match(y, /date_fields: \[duedate\]/, 'release.date_fields');
+  assert.match(y, /^  statuses:\n(    - .+\n)+  done_status: /m, 'release.statuses и done_status');
+  assert.match(y, /открытый релиз не «просрочен»/, 'правило конвейера релизов');
   assert.match(y, /activity_limit: 30/, 'bitbucket.activity_limit');
 });
 
 test('env.example и VERSION', () => {
   const e = read('templates/env.example');
   for (const v of ['JIRA_TOKEN', 'BITBUCKET_TOKEN', 'JENKINS_TOKEN', 'TESTOPS_TOKEN']) assert.match(e, new RegExp(`^${v}=$`, 'm'));
-  assert.equal(read('VERSION'), '0.2.0\n');
+  assert.equal(read('VERSION'), '0.4.0\n');
 });

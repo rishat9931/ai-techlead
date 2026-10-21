@@ -67,7 +67,8 @@ description: Строит снимок стендапа reports/<дата>.json 
    Длину спринта считай вторым вызовом с `"today": sprint.end` и элементом `sprint-total` (`since` = день перед `start`).
    Скрипт вернул код 2 — исправь ввод (даты строго `YYYY-MM-DD`) и повтори. Сам дни не считай.
 4. **Разделы отчёта** (поля — строго по схеме):
-   - `sprint`: `{name, state, start, end, sp_done, sp_total, scope_added[{key, title, url}]}` из jira (title/url — из `issues[]`),
+   - `sprint`: `{name, state, goal, start, end, sp_done, sp_total, scope_added[{key, title, url}]}` из jira (title/url — из `issues[]`),
+     `goal` — цель спринта как есть из raw-файла; поля нет или пусто → `null` (не выдумывай цель),
      `day` = `sprint-day`, `days_total` = `sprint-total`, `done_pct` = round(`sp_done`/`sp_total`·100) (при `sp_total` 0 → 0),
      `risk` — строка, если `done_pct` отстаёт от доли прошедших дней (`day`/`days_total`·100) больше чем на 15 п.п.
      (например «При текущем темпе не закроются ≈N SP»), иначе `null`. `sprint: null` в raw → `sprint: {}`.
@@ -81,12 +82,18 @@ description: Строит снимок стендапа reports/<дата>.json 
      `"YYYY-MM-DD HH:MM · <Имя>: <что>"` (`commit`→«коммит», `comment`→«комментарий», `approve`→«апрув»,
      `needs_work`→«needs work», `opened`→«создал PR»). `whose_turn` из raw = `null` → **поле не пиши** (оно не обязательно);
      такой PR в сигналах «чей ход» не участвует, владелец сигнала — «Техлид».
-   - `releases`: `upcoming` — тикеты с `planned_date ≥ сегодня`, `past` — с `planned_date < сегодня`;
+   - `releases`: `stages` = `release.statuses` из конфига (порядок конвейера), `done_status` = `release.done_status`
+     (нет ключа — «Установлен на ПРОМ»); `upcoming` — **открытые** тикеты (статус ≠ `done_status`),
+     `past` — **выведенные** (статус = `done_status`, дата резолюции есть).
      `{key, title, planned_date, status, linked = links[].key, issues[], url}`, в `upcoming` ещё `days_no_move = rel:<key>`,
-     в `past` — `closed_date`. `issues` — фразы: «нет связанных задач»; «дата прошла, тикет открыт» (нет `closed_date`
-     и статус не из `jira.statuses.done`); «без обновлений N дней» (N > `task_stale_days`); «<KEY> ещё в <статус>» для связанной
-     задачи из `issues[]`, которая не в группах `done`/`ready_for_release`. `ready_without_release` — из jira как есть,
-     `assignee` → имя.
+     в `past` — `closed_date`.
+     **Плановая дата — это план, а не дедлайн:** открытый релиз не бывает «просроченным» и не относится к «прошедшим».
+     Про сдвиг плана говори только по факту конвейера: «план 13.10 прошёл, релиз всё ещё на стадии «Готов к установке на ПРОМ»,
+     без движения N р. дн.» — и это повод для сигнала, только если `days_no_move > task_stale_days`.
+     `issues` — фразы: «нет связанных задач»; «без обновлений N дней» (N > `task_stale_days`); «дата резолюции не заполнена»
+     (выведенный тикет без `closed_date`); «<KEY> ещё в <статус>» для связанной задачи из `issues[]`, которая не в группах
+     `done`/`ready_for_release`. Фраз «дата прошла, тикет открыт» и «просрочен» не используй.
+     `ready_without_release` — из jira как есть, `assignee` → имя.
    - `tests.jobs[]` `{name, state, last_run, url}`: `hung` и `failed_before_tests` — как в raw; `ok` → `idle`, если
      `last_run` = `null` или `job:<name>` > `jenkins.max_idle_days`; иначе `ok`.
    - **Проект TestOps** везде в отчёте — `name` из `testops.projects[]` по `id` (не нашёлся — значение как в raw):
@@ -129,7 +136,10 @@ description: Строит снимок стендапа reports/<дата>.json 
    - PR: `pr_stale_days < idle_days ≤ pr_critical_days` — `pr`; PR без `jira_key` — `pr`, автор;
    - задача без обновлений: `days_no_move > task_stale_days` — `people`, исполнитель;
    - WIP: задач в группе `active` у человека > `max_wip_per_person` — `people`;
-   - Release 2.0: непустые `issues` у ближайшего или прошедшего тикета; тикет из `releases_undated` («нет даты вывода») — `release`;
+   - Release 2.0: у ближайшего или любого открытого тикета непустые `issues` (кроме «нет связанных задач» и
+     «<KEY> ещё в <статус>» — это шум) — `release`; тикет из `releases_undated` («нет даты вывода») — `release`;
+     открытый тикет, стоящий на стадии конвейера (`stages`) без движения дольше `task_stale_days` — `release`,
+     текст через стадию («релиз не двигается, план N прошёл — уточнить окно установки/дату»), а не «просрочен»;
      владелец — исполнитель связанной незавершённой задачи, иначе «Техлид»;
    - задача из `ready_without_release` — `release`, исполнитель;
    - новый flaky: тест с `is_new` и в `history` есть и `pass`, и не меньше двух `fail` не подряд — `tests`;
